@@ -5,6 +5,12 @@
   "%1 is not installed": {
     "%1 is not installed": ""
   },
+  "0x0 Instance": {
+    "0x0 Instance": "Сервер 0x0"
+  },
+  "0x0.st (or compatible)": {
+    "0x0.st (or compatible)": "0x0.st (или совместимый)"
+  },
   "1 Connecting Line": {
     "1 Connecting Line": ""
   },
@@ -43,6 +49,9 @@
   },
   "Anonymous Copy": {
     "Anonymous Copy": ""
+  },
+  "Any The Null Pointer compatible host, e.g. https://0x0.st or https://x0.at. Files expire after days to months depending on size.": {
+    "Any The Null Pointer compatible host, e.g. https://0x0.st or https://x0.at. Files expire after days to months depending on size.": "Любой сервер, совместимый с The Null Pointer, например https://0x0.st или https://x0.at. Файлы хранятся от нескольких дней до месяцев в зависимости от размера."
   },
   "Arrow": {
     "Arrow": "вектор стрелки"

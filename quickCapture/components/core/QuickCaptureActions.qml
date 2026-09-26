@@ -354,7 +354,7 @@ QtObject {
         case "litterbox":
             return "litterbox";
         case "0x0":
-            return "0x0.st";
+            return String(setting("upload0x0Url") || "https://0x0.st").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
         default:
             return I18n.trFor("quickCapture", "custom uploader");
         }
@@ -369,6 +369,8 @@ QtObject {
             option = setting("uploadRcloneRemote");
         else if (provider === "litterbox")
             option = setting("uploadLitterboxTime");
+        else if (provider === "0x0")
+            option = setting("upload0x0Url");
         else if (provider === "custom")
             option = setting("uploadCustomCommand");
         const rcSocket = provider === "rclone" ? Paths.expandTilde(String(setting("uploadRcloneRcSocket") || "")) : "";

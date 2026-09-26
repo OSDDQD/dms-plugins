@@ -12,7 +12,7 @@ Screenshot annotation and screen recording plugin for DankMaterialShell.
 
 ## Fork: upload and share
 
-This fork ([OSDDQD/dms-plugins](https://github.com/OSDDQD/dms-plugins)) adds uploading: <kbd>Ctrl</kbd>+<kbd>U</kbd> or the cloud button uploads the edited screenshot to catbox.moe, litterbox, 0x0.st, any **rclone** remote (OneDrive, Google Drive, S3…) or a custom command, and copies the public link. See [Upload and Share](docs/user-guide.md#upload-and-share). It also makes the OCR languages configurable (**Editor → OCR Languages**, e.g. `rus+eng`).
+This fork ([OSDDQD/dms-plugins](https://github.com/OSDDQD/dms-plugins)) adds uploading: <kbd>Ctrl</kbd>+<kbd>U</kbd> or the cloud button uploads the edited screenshot to 0x0.st (default) or any compatible instance such as x0.at, catbox.moe, litterbox, any **rclone** remote (OneDrive, Google Drive, S3…) or a custom command, and copies the public link. See [Upload and Share](docs/user-guide.md#upload-and-share). It also makes the OCR languages configurable (**Editor → OCR Languages**, e.g. `rus+eng`).
 
 ## Documentation
 

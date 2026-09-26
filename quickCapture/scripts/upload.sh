@@ -13,7 +13,8 @@
 #              of starting a new rclone — seconds instead of tens of seconds on OneDrive.
 #   catbox     https://catbox.moe, permanent, up to 200 MB, no account needed.
 #   litterbox  https://litterbox.catbox.moe, temporary; option = 1h | 12h | 24h | 72h.
-#   0x0        https://0x0.st, 30 days to 1 year depending on size, up to 512 MB.
+#   0x0        The Null Pointer (https://0x0.st) or any compatible instance; option =
+#              instance URL (default https://0x0.st), e.g. https://x0.at.
 #   custom     option = shell command; the file path is passed as $1 and the remote
 #              name as $2. Whatever URL it prints last is used, e.g. for Zipline:
 #              curl -fsS -H "authorization: TOKEN" -F file=@"$1" https://zipline.example/api/upload | jq -r '.files[0].url'
@@ -31,7 +32,7 @@ file=$2
 name=$3
 option=$4
 rc_socket=$5
-ua="DMS-QuickCapture/1.0 (+https://github.com/hthienloc/dms-plugins)"
+ua="DMS-QuickCapture/1.0 (+https://github.com/OSDDQD/dms-plugins)"
 proxy=${QC_UPLOAD_PROXY:-}
 if [ -n "$proxy" ]; then
     ALL_PROXY=$proxy HTTPS_PROXY=$proxy
@@ -60,7 +61,28 @@ run() {
     printf '%s' "$out"
 }
 
-# $(...) runs in a subshell, so a failed `run` must be propagated explicitly.
+# POSTs a multipart form with curl and prints the response body. Unlike `curl -f`,
+# an HTTP error keeps the server's own explanation (e.g. 0x0.st's "uploads disabled").
+post() {
+    body=$(curl -sS -A "$ua" -w '\n%{http_code}' "$@" 2>&1) || {
+        printf 'ERROR: %s\n' "$(printf '%s' "$body" | grep 'curl:' | tail -n 1)"
+        return 1
+    }
+    code=$(printf '%s' "$body" | tail -n 1)
+    body=$(printf '%s' "$body" | sed '$d')
+    case "$code" in
+    2??) printf '%s' "$body" ;;
+    *)
+        # HTML error pages are useless in a notification — keep only plain-text replies.
+        case "$body" in *"<"*">"*) body="" ;; esac
+        [ "$code" = 403 ] && [ -z "$body" ] && body="forbidden (the host may block your network — try an upload proxy)"
+        printf 'ERROR: HTTP %s %s\n' "$code" "$(printf '%s' "$body" | head -n 2 | tr '\n' ' ' | cut -c1-200)"
+        return 1
+        ;;
+    esac
+}
+
+# $(...) runs in a subshell, so a failed `run`/`post` must be propagated explicitly.
 or_die() {
     printf '%s\n' "$1"
     exit 1
@@ -85,16 +107,17 @@ rclone)
     ;;
 catbox)
     need curl
-    url=$(run curl -fsS -A "$ua" -F reqtype=fileupload -F "fileToUpload=@$file;filename=$name" https://catbox.moe/user/api.php) || or_die "$url"
+    url=$(post -F reqtype=fileupload -F "fileToUpload=@$file;filename=$name" https://catbox.moe/user/api.php) || or_die "$url"
     ;;
 litterbox)
     need curl
     case "$option" in 1h | 12h | 24h | 72h) ;; *) option=24h ;; esac
-    url=$(run curl -fsS -A "$ua" -F reqtype=fileupload -F "time=$option" -F "fileToUpload=@$file;filename=$name" https://litterbox.catbox.moe/resources/internals/api.php) || or_die "$url"
+    url=$(post -F reqtype=fileupload -F "time=$option" -F "fileToUpload=@$file;filename=$name" https://litterbox.catbox.moe/resources/internals/api.php) || or_die "$url"
     ;;
 0x0)
     need curl
-    url=$(run curl -fsS -A "$ua" -F "file=@$file;filename=$name" https://0x0.st) || or_die "$url"
+    instance=${option:-https://0x0.st}
+    url=$(post -F "file=@$file;filename=$name" "${instance%/}/") || or_die "$url"
     ;;
 custom)
     [ -n "$option" ] || fail "custom upload command is not set"
