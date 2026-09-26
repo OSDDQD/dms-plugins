@@ -140,16 +140,16 @@ SettingsGroup {
             description: I18n.trFor("quickCapture", "Where Ctrl+U and the upload button send the image. The link is copied to the clipboard.")
             options: [
                 {
+                    label: I18n.trFor("quickCapture", "0x0.st (or compatible)"),
+                    value: "0x0"
+                },
+                {
                     label: "catbox.moe",
                     value: "catbox"
                 },
                 {
                     label: I18n.trFor("quickCapture", "litterbox (temporary)"),
                     value: "litterbox"
-                },
-                {
-                    label: "0x0.st",
-                    value: "0x0"
                 },
                 {
                     label: I18n.trFor("quickCapture", "rclone (OneDrive, Google Drive, S3...)"),
@@ -161,6 +161,23 @@ SettingsGroup {
                 }
             ]
             defaultValue: Defaults.values.uploadProvider
+        }
+
+        SettingsGroup {
+            visible: uploadProvider.value === "0x0"
+
+            Separator {}
+
+            StringSettingPlus {
+                settingKey: "upload0x0Url"
+                label: I18n.trFor("quickCapture", "0x0 Instance")
+                placeholder: "https://0x0.st"
+                defaultValue: Defaults.values.upload0x0Url
+            }
+
+            InfoText {
+                text: I18n.trFor("quickCapture", "Any The Null Pointer compatible host, e.g. https://0x0.st or https://x0.at. Files expire after days to months depending on size.")
+            }
         }
 
         SettingsGroup {
