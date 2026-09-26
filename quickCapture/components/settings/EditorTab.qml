@@ -118,5 +118,18 @@ SettingsGroup {
             description: I18n.trFor("quickCapture", "When enabled, the editor shrinks to match the captured region instead of filling %1% of the screen.").arg(90)
             defaultValue: Defaults.values.modalScaleToContent
         }
+
+        Separator {}
+
+        StringSettingPlus {
+            settingKey: "ocrLanguages"
+            label: I18n.trFor("quickCapture", "OCR Languages")
+            placeholder: "eng"
+            defaultValue: Defaults.values.ocrLanguages
+        }
+
+        InfoText {
+            text: I18n.trFor("quickCapture", "Tesseract language codes joined with +, e.g. rus+eng. Each needs its tesseract-ocr-<code> package (`tesseract --list-langs`).")
+        }
     }
 }

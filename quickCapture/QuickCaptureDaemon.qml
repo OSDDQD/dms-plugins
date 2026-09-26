@@ -313,6 +313,22 @@ PluginComponent {
         loadImageFromUri(url, "edit");
     }
 
+    // Uploads any existing file (screenshot, recording) with the configured provider.
+    function uploadPath(path) {
+        const resolved = Paths.expandTilde(Paths.strip(String(path || "").trim()));
+        if (!resolved) {
+            captureActions.notifyWarning(I18n.trFor("quickCapture", "Nothing to upload"));
+            return;
+        }
+        Proc.runCommand(null, ["test", "-s", resolved], (stdout, exitCode) => {
+            if (exitCode !== 0) {
+                captureActions.notifyError(I18n.trFor("quickCapture", "Nothing to upload"), resolved);
+                return;
+            }
+            captureActions.uploadFile(resolved, resolved.split("/").pop());
+        });
+    }
+
     function showHistoryCarousel() {
         historyModal.shouldBeVisible = true;
         historyModal.open();
@@ -378,6 +394,18 @@ PluginComponent {
             }
             root.record(mode, "", false);
             return "STARTED";
+        }
+
+        function upload(path: string): string {
+            root.uploadPath(path);
+            return "SUCCESS";
+        }
+
+        function uploadLastRecording(): string {
+            if (!recorder.lastRecordingPath)
+                return "ERROR: no recording in this session";
+            root.uploadPath(recorder.lastRecordingPath);
+            return "SUCCESS";
         }
 
         function recordStatus(): string {

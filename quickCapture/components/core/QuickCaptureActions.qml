@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.Common
 import qs.Services
 import "Helpers.js" as Helpers
@@ -341,6 +342,94 @@ QtObject {
         });
     }
 
+    readonly property string uploadScript: decodeURIComponent(Qt.resolvedUrl("../../scripts/upload.sh").toString().replace(/^file:\/\//, ""))
+    property int activeUploads: 0
+
+    function uploadProviderLabel(provider) {
+        switch (provider) {
+        case "rclone":
+            return String(setting("uploadRcloneRemote")).split(":")[0] || "rclone";
+        case "catbox":
+            return "catbox.moe";
+        case "litterbox":
+            return "litterbox";
+        case "0x0":
+            return "0x0.st";
+        default:
+            return I18n.trFor("quickCapture", "custom uploader");
+        }
+    }
+
+    // Uploads `path` under `remoteName` with the configured provider (scripts/upload.sh),
+    // copies the resulting link to the clipboard and notifies. `after(url)` gets "" on failure.
+    function uploadFile(path, remoteName, after, iconPath) {
+        const provider = String(setting("uploadProvider"));
+        let option = "";
+        if (provider === "rclone")
+            option = setting("uploadRcloneRemote");
+        else if (provider === "litterbox")
+            option = setting("uploadLitterboxTime");
+        else if (provider === "custom")
+            option = setting("uploadCustomCommand");
+        const rcSocket = provider === "rclone" ? Paths.expandTilde(String(setting("uploadRcloneRcSocket") || "")) : "";
+        const label = uploadProviderLabel(provider);
+
+        root.activeUploads++;
+        ToastService.showInfo(I18n.trFor("quickCapture", "Uploading to %1...").arg(label));
+        const proxy = String(setting("uploadProxy") || "").trim();
+        const args = ["env", "QC_UPLOAD_PROXY=" + proxy, "sh", root.uploadScript, provider, path, remoteName || "", String(option || ""), rcSocket];
+        Proc.runCommand(null, args, (stdout, exitCode) => {
+            root.activeUploads--;
+            const lines = String(stdout || "").trim().split("\n");
+            const last = (lines[lines.length - 1] || "").trim();
+            if (exitCode !== 0 || !/^https?:\/\//.test(last)) {
+                const reason = exitCode === 124 ? I18n.trFor("quickCapture", "timed out") : (last.replace(/^ERROR:\s*/, "") || ("exit code " + exitCode));
+                notifyError(I18n.trFor("quickCapture", "Upload to %1 failed").arg(label), reason);
+                if (after)
+                    after("");
+                return;
+            }
+            if (setting("uploadCopyUrl"))
+                DMSService.sendRequest("clipboard.copy", {
+                    "text": last
+                }, () => {});
+            notifyUploaded(last, label, iconPath || path);
+            if (after)
+                after(last);
+        }, 0, 30 * 60 * 1000);
+    }
+
+    // Upload results are always announced, regardless of postNotification: the link is
+    // the whole point. "Open" opens the link in the browser.
+    function notifyUploaded(url, label, iconPath) {
+        const copied = setting("uploadCopyUrl");
+        const title = copied ? I18n.trFor("quickCapture", "Link copied to clipboard") : I18n.trFor("quickCapture", "Uploaded to %1").arg(label);
+        ToastService.showInfo(title);
+        const isImage = /\.(png|jpe?g|webp|gif)$/i.test(String(iconPath || ""));
+        const icon = isImage ? iconPath : "folder-remote";
+        Quickshell.execDetached(["sh", "-c", 'a=$(notify-send -a "Quick Capture" -i "$1" -A open="$4" "$2" "$3") && [ "$a" = open ] && xdg-open "$3"', "_", icon, title, url, I18n.trFor("quickCapture", "Open")]);
+    }
+
+    function performUpload() {
+        withConvertedExport((finalPath, originalPng) => {
+            const keepLocal = setting("uploadKeepLocal");
+            const name = screenshotFilename();
+            const target = keepLocal ? saveDirectory().replace(/\/$/, "") + "/" + name : "/tmp/dms_upload_" + Date.now() + "_" + name;
+            saveFileToPath(finalPath, target, (stdout, exitCode) => {
+                finishExport(finalPath, originalPng);
+                if (exitCode !== 0) {
+                    notifyError(I18n.trFor("quickCapture", "Failed to save screenshot"), commandOutputOrFallback(stdout, "Save exit code " + exitCode));
+                    return;
+                }
+                uploadFile(target, name, () => {
+                    // Delayed so the notification daemon can still load the thumbnail
+                    if (!keepLocal)
+                        Proc.runCommand(null, ["sh", "-c", 'sleep 15 && rm -f -- "$1"', "_", target]);
+                });
+            });
+        });
+    }
+
     function performDoneAction() {
         switch (setting("doneAction")) {
         case "clipboard":
@@ -348,6 +437,9 @@ QtObject {
             return;
         case "file":
             performSaveOnly();
+            return;
+        case "upload":
+            performUpload();
             return;
         default:
             performCopyAndSave();

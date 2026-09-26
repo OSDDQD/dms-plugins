@@ -106,7 +106,17 @@ const values = {
     resizeMax: 2000,
     radialHoverTrigger: true,
     radialHoverDelay: 200,
-    radialMenuOpacity: 100
+    radialMenuOpacity: 100,
+    ocrLanguages: "eng",
+    uploadProvider: "catbox",
+    uploadRcloneRemote: "",
+    uploadRcloneRcSocket: "",
+    uploadLitterboxTime: "24h",
+    uploadCustomCommand: "",
+    uploadProxy: "",
+    uploadKeepLocal: true,
+    uploadCopyUrl: true,
+    uploadRecordings: false
 };
 
 function get(data, key) {
