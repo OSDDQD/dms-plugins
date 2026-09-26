@@ -136,7 +136,7 @@ Providers (**Settings → Save → Upload**):
 | --- | --- |
 | **catbox.moe** | Permanent, up to 200 MB, no account |
 | **litterbox** | Temporary: 1h / 12h / 24h / 72h |
-| **0x0.st** (default) | Or any compatible instance (**0x0 Instance**, e.g. `https://x0.at`). Retention depends on size |
+| **0x0.st** (default) | Or any compatible instance (**0x0 Instance**, e.g. `https://x0.at`). Retention depends on size. **Upload Token** is sent as `X-Upload-Token` for a private instance whose reverse proxy only accepts uploads carrying it |
 | **rclone** | Any rclone remote that supports `rclone link`: OneDrive, Google Drive, Dropbox, S3… Destination like `OneDrive:Pictures/Screenshots`. Optional **RC socket** of an already running rclone (e.g. your `rclone mount` with `--rc --rc-addr unix://%t/rclone.sock --rc-no-auth`) makes uploads take seconds instead of tens of seconds |
 | **Custom command** | Any `sh` command: `$1` is the file, `$2` its name, the last printed URL is used — e.g. Zipline, XBackBone, a self-hosted S3 |
 

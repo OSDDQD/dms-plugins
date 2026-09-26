@@ -178,6 +178,19 @@ SettingsGroup {
             InfoText {
                 text: I18n.trFor("quickCapture", "Any The Null Pointer compatible host, e.g. https://0x0.st or https://x0.at. Files expire after days to months depending on size.")
             }
+
+            Separator {}
+
+            StringSettingPlus {
+                settingKey: "upload0x0Token"
+                label: I18n.trFor("quickCapture", "Upload Token (optional)")
+                placeholder: ""
+                defaultValue: Defaults.values.upload0x0Token
+            }
+
+            InfoText {
+                text: I18n.trFor("quickCapture", "Sent as the X-Upload-Token header — for a private instance that only accepts uploads carrying it.")
+            }
         }
 
         SettingsGroup {

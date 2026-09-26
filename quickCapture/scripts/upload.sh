@@ -15,6 +15,8 @@
 #   litterbox  https://litterbox.catbox.moe, temporary; option = 1h | 12h | 24h | 72h.
 #   0x0        The Null Pointer (https://0x0.st) or any compatible instance; option =
 #              instance URL (default https://0x0.st), e.g. https://x0.at.
+#              QC_UPLOAD_TOKEN (env, optional) is sent as the X-Upload-Token header —
+#              for a private instance whose proxy only accepts uploads carrying it.
 #   custom     option = shell command; the file path is passed as $1 and the remote
 #              name as $2. Whatever URL it prints last is used, e.g. for Zipline:
 #              curl -fsS -H "authorization: TOKEN" -F file=@"$1" https://zipline.example/api/upload | jq -r '.files[0].url'
@@ -117,7 +119,14 @@ litterbox)
 0x0)
     need curl
     instance=${option:-https://0x0.st}
-    url=$(post -F "file=@$file;filename=$name" "${instance%/}/") || or_die "$url"
+    set -- -F "file=@$file;filename=$name" "${instance%/}/"
+    [ -n "${QC_UPLOAD_TOKEN:-}" ] && set -- -H "X-Upload-Token: $QC_UPLOAD_TOKEN" "$@"
+    url=$(post "$@") || {
+        # A private instance hides its upload route from requests without the
+        # right token, so a 404 on POST almost always means a token problem.
+        case "$url" in "ERROR: HTTP 404"*) url="ERROR: upload rejected (HTTP 404) — check the upload token" ;; esac
+        or_die "$url"
+    }
     ;;
 custom)
     [ -n "$option" ] || fail "custom upload command is not set"

@@ -971,6 +971,9 @@
   "Selected Tool / Action": {
     "Selected Tool / Action": ""
   },
+  "Sent as the X-Upload-Token header — for a private instance that only accepts uploads carrying it.": {
+    "Sent as the X-Upload-Token header — for a private instance that only accepts uploads carrying it.": "Передаётся заголовком X-Upload-Token — для закрытого сервера, который принимает загрузки только с ним."
+  },
   "Settings": {
     "Settings": "Настройки"
   },
@@ -1177,6 +1180,9 @@
   },
   "Upload Recordings Automatically": {
     "Upload Recordings Automatically": "Загружать записи автоматически"
+  },
+  "Upload Token (optional)": {
+    "Upload Token (optional)": "Токен загрузки (необязательно)"
   },
   "Upload every finished screen recording and copy its link.": {
     "Upload every finished screen recording and copy its link.": "Загружать каждую законченную запись экрана и копировать ссылку."
