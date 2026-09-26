@@ -191,6 +191,18 @@ SettingsGroup {
             InfoText {
                 text: I18n.trFor("quickCapture", "Sent as the X-Upload-Token header — for a private instance that only accepts uploads carrying it.")
             }
+
+            Separator {}
+
+            ToggleSettingPlus {
+                settingKey: "upload0x0Secret"
+                label: I18n.trFor("quickCapture", "Hard-to-Guess Links")
+                defaultValue: Defaults.values.upload0x0Secret
+            }
+
+            InfoText {
+                text: I18n.trFor("quickCapture", "Adds a random secret to the link (/s/<secret>/<name>), so files cannot be found by trying short names.")
+            }
         }
 
         SettingsGroup {
