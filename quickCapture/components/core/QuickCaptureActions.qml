@@ -380,7 +380,8 @@ QtObject {
         ToastService.showInfo(I18n.trFor("quickCapture", "Uploading to %1...").arg(label));
         const proxy = String(setting("uploadProxy") || "").trim();
         const token = provider === "0x0" ? String(setting("upload0x0Token") || "").trim() : "";
-        const args = ["env", "QC_UPLOAD_PROXY=" + proxy, "QC_UPLOAD_TOKEN=" + token, "sh", root.uploadScript, provider, path, remoteName || "", String(option || ""), rcSocket];
+        const secret = provider === "0x0" && setting("upload0x0Secret") !== false ? "1" : "";
+        const args = ["env", "QC_UPLOAD_PROXY=" + proxy, "QC_UPLOAD_TOKEN=" + token, "QC_UPLOAD_SECRET=" + secret, "sh", root.uploadScript, provider, path, remoteName || "", String(option || ""), rcSocket];
         Proc.runCommand(null, args, (stdout, exitCode) => {
             root.activeUploads--;
             const lines = String(stdout || "").trim().split("\n");

@@ -32,6 +32,9 @@
   "Add Text Note": {
     "Add Text Note": ""
   },
+  "Adds a random secret to the link (/s/<secret>/<name>), so files cannot be found by trying short names.": {
+    "Adds a random secret to the link (/s/<secret>/<name>), so files cannot be found by trying short names.": "Добавляет в ссылку случайный секрет (/s/<секрет>/<имя>), чтобы файлы нельзя было найти перебором коротких имён."
+  },
   "Alignment": {
     "Alignment": ""
   },
@@ -451,6 +454,9 @@
   },
   "Gradient Start": {
     "Gradient Start": ""
+  },
+  "Hard-to-Guess Links": {
+    "Hard-to-Guess Links": "Неугадываемые ссылки"
   },
   "Help": {
     "Help": "Помощь"

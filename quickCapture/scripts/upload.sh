@@ -17,6 +17,8 @@
 #              instance URL (default https://0x0.st), e.g. https://x0.at.
 #              QC_UPLOAD_TOKEN (env, optional) is sent as the X-Upload-Token header —
 #              for a private instance whose proxy only accepts uploads carrying it.
+#              QC_UPLOAD_SECRET=1 (env, optional) asks for a secret link
+#              (/s/<secret>/<name>) that can't be found by enumerating short names.
 #   custom     option = shell command; the file path is passed as $1 and the remote
 #              name as $2. Whatever URL it prints last is used, e.g. for Zipline:
 #              curl -fsS -H "authorization: TOKEN" -F file=@"$1" https://zipline.example/api/upload | jq -r '.files[0].url'
@@ -120,6 +122,7 @@ litterbox)
     need curl
     instance=${option:-https://0x0.st}
     set -- -F "file=@$file;filename=$name" "${instance%/}/"
+    [ -n "${QC_UPLOAD_SECRET:-}" ] && set -- -F secret= "$@"
     [ -n "${QC_UPLOAD_TOKEN:-}" ] && set -- -H "X-Upload-Token: $QC_UPLOAD_TOKEN" "$@"
     url=$(post "$@") || {
         # A private instance hides its upload route from requests without the
