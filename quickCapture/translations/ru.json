@@ -32,6 +32,9 @@
   "All Outputs": {
     "All Outputs": ""
   },
+  "Also Save to Screenshot Folder": {
+    "Also Save to Screenshot Folder": "Сохранять и в папку скриншотов"
+  },
   "Annotating": {
     "Annotating": ""
   },
@@ -245,6 +248,9 @@
   "Copy Current Palette": {
     "Copy Current Palette": ""
   },
+  "Copy Link to Clipboard": {
+    "Copy Link to Clipboard": "Копировать ссылку в буфер обмена"
+  },
   "Copy and customize this preset": {
     "Copy and customize this preset": ""
   },
@@ -262,6 +268,9 @@
   },
   "Custom": {
     "Custom": "Свой"
+  },
+  "Custom command": {
+    "Custom command": "Своя команда"
   },
   "Dark": {
     "Dark": ""
@@ -340,6 +349,9 @@
   },
   "Eraser": {
     "Eraser": "Ластик"
+  },
+  "Expires After": {
+    "Expires After": "Удалить через"
   },
   "Failed to convert recording to GIF.": {
     "Failed to convert recording to GIF.": ""
@@ -515,6 +527,9 @@
   "JPEG Quality": {
     "JPEG Quality": ""
   },
+  "Keep a local copy of every uploaded screenshot.": {
+    "Keep a local copy of every uploaded screenshot.": "Оставлять локальную копию каждого загруженного скриншота."
+  },
   "Key": {
     "Key": "Ключ"
   },
@@ -544,6 +559,9 @@
   },
   "Linear Gradient": {
     "Linear Gradient": ""
+  },
+  "Link copied to clipboard": {
+    "Link copied to clipboard": "Ссылка скопирована в буфер обмена"
   },
   "Live Preview": {
     "Live Preview": ""
@@ -623,6 +641,9 @@
   "Note: Starting tool mode overrides tool thickness and color defaults if the starting tool matches it.": {
     "Note: Starting tool mode overrides tool thickness and color defaults if the starting tool matches it.": ""
   },
+  "Nothing to upload": {
+    "Nothing to upload": "Нечего загружать"
+  },
   "Notification": {
     "Notification": "Уведомление"
   },
@@ -631,6 +652,9 @@
   },
   "OCR": {
     "OCR": ""
+  },
+  "OCR Languages": {
+    "OCR Languages": "Языки OCR"
   },
   "OCR Result": {
     "OCR Result": ""
@@ -809,6 +833,9 @@
   "Region HUD Scale": {
     "Region HUD Scale": ""
   },
+  "Remote and folder from `rclone config`. The public link comes from `rclone link` (view-only, anyone with the link).": {
+    "Remote and folder from `rclone config`. The public link comes from `rclone link` (view-only, anyone with the link).": "Remote и папка из `rclone config`. Публичная ссылка — от `rclone link` (только просмотр, для всех, у кого есть ссылка)."
+  },
   "Reset": {
     "Reset": "Сбросить"
   },
@@ -844,6 +871,9 @@
   },
   "Rounded Rectangle": {
     "Rounded Rectangle": ""
+  },
+  "Runs with sh: $1 is the file, $2 its name. The last URL printed is used.": {
+    "Runs with sh: $1 is the file, $2 its name. The last URL printed is used.": "Выполняется через sh: $1 — файл, $2 — его имя. Берётся последний напечатанный URL."
   },
   "Save": {
     "Save": "Сохранить"
@@ -989,6 +1019,9 @@
   "Solid Line": {
     "Solid Line": ""
   },
+  "Some hosts reject uploads from certain networks with 403. Route uploads through a proxy (curl syntax).": {
+    "Some hosts reject uploads from certain networks with 403. Route uploads through a proxy (curl syntax).": "Некоторые хостинги отвечают 403 на загрузки из отдельных сетей. Загружать через прокси (синтаксис curl)."
+  },
   "Spawn Position": {
     "Spawn Position": ""
   },
@@ -1033,6 +1066,9 @@
   },
   "Target Output Name": {
     "Target Output Name": ""
+  },
+  "Tesseract language codes joined with +, e.g. rus+eng. Each needs its tesseract-ocr-<code> package (`tesseract --list-langs`).": {
+    "Tesseract language codes joined with +, e.g. rus+eng. Each needs its tesseract-ocr-<code> package (`tesseract --list-langs`).": "Коды языков Tesseract через +, например rus+eng. Для каждого нужен пакет tesseract-ocr-<код> (`tesseract --list-langs`)."
   },
   "Text": {
     "Text": "Текст"
@@ -1112,6 +1148,39 @@
   "Undo": {
     "Undo": ""
   },
+  "Unix socket of a running rclone (e.g. your `rclone mount`) started with `--rc --rc-addr unix://<path> --rc-no-auth`. Reuses its warm connection: uploads take seconds instead of tens of seconds. Falls back to plain rclone if the socket is missing.": {
+    "Unix socket of a running rclone (e.g. your `rclone mount`) started with `--rc --rc-addr unix://<path> --rc-no-auth`. Reuses its warm connection: uploads take seconds instead of tens of seconds. Falls back to plain rclone if the socket is missing.": "Unix-сокет уже запущенного rclone (например, вашего `rclone mount`) с `--rc --rc-addr unix://<путь> --rc-no-auth`. Используется его готовое соединение: загрузка занимает секунды, а не десятки секунд. Если сокета нет — обычный rclone."
+  },
+  "Upload": {
+    "Upload": "Загрузка"
+  },
+  "Upload & Copy Link": {
+    "Upload & Copy Link": "Загрузить и скопировать ссылку"
+  },
+  "Upload Command": {
+    "Upload Command": "Команда загрузки"
+  },
+  "Upload Provider": {
+    "Upload Provider": "Куда загружать"
+  },
+  "Upload Proxy (optional)": {
+    "Upload Proxy (optional)": "Прокси для загрузки (необязательно)"
+  },
+  "Upload Recordings Automatically": {
+    "Upload Recordings Automatically": "Загружать записи автоматически"
+  },
+  "Upload every finished screen recording and copy its link.": {
+    "Upload every finished screen recording and copy its link.": "Загружать каждую законченную запись экрана и копировать ссылку."
+  },
+  "Upload to %1 failed": {
+    "Upload to %1 failed": "Не удалось загрузить в %1"
+  },
+  "Uploaded to %1": {
+    "Uploaded to %1": "Загружено в %1"
+  },
+  "Uploading to %1...": {
+    "Uploading to %1...": "Загрузка в %1…"
+  },
   "Usage Guide": {
     "Usage Guide": ""
   },
@@ -1148,10 +1217,31 @@
   "When enabled, the editor shrinks to match the captured region instead of filling %1% of the screen.": {
     "When enabled, the editor shrinks to match the captured region instead of filling %1% of the screen.": ""
   },
+  "Where Ctrl+U and the upload button send the image. The link is copied to the clipboard.": {
+    "Where Ctrl+U and the upload button send the image. The link is copied to the clipboard.": "Куда отправляют изображение Ctrl+U и кнопка загрузки. Ссылка копируется в буфер обмена."
+  },
   "Window": {
     "Window": ""
   },
   "Window / Portal": {
     "Window / Portal": ""
+  },
+  "custom uploader": {
+    "custom uploader": "свой загрузчик"
+  },
+  "litterbox (temporary)": {
+    "litterbox (temporary)": "litterbox (временно)"
+  },
+  "rclone (OneDrive, Google Drive, S3...)": {
+    "rclone (OneDrive, Google Drive, S3...)": "rclone (OneDrive, Google Drive, S3…)"
+  },
+  "rclone Destination": {
+    "rclone Destination": "Папка rclone"
+  },
+  "rclone RC Socket (optional)": {
+    "rclone RC Socket (optional)": "Сокет RC rclone (необязательно)"
+  },
+  "timed out": {
+    "timed out": "превышено время ожидания"
   }
 }

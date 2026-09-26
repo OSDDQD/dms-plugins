@@ -30,6 +30,8 @@ Commands that capture or open images accept an `action` parameter (`edit` / `flo
 | `recordCancel` | *(none)* | Cancels screen recording. |
 | `recordToggle` | `mode` | Toggles screen recording. |
 | `recordStatus` | *(none)* | Returns recorder status. |
+| `upload` | `path` | Uploads any file with the configured provider and copies its link. |
+| `uploadLastRecording` | *(none)* | Uploads the last recording of this session. |
 
 ```bash
 dms ipc call quickCapture screenshot region edit    # open editor
@@ -95,6 +97,7 @@ Pressing these keys changes the active tool:
 - `Ctrl + S`: Save the canvas directly as a file.
 - `Ctrl + A`: Copy to clipboard and save as file simultaneously.
 - `Ctrl + F`: Float image to always-on-top window.
+- `Ctrl + U`: Upload to the configured provider and copy the public link.
 - `Ctrl + X`: Interactive canvas crop.
 
 ### Interactive Modifiers

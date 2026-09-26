@@ -92,6 +92,7 @@ Rectangle {
     signal copyRequested
     signal anonymousCopyRequested
     signal copyAndSaveRequested
+    signal uploadRequested
     signal closeRequested
     signal annotationsToggled
     signal backgroundColorPickerRequested(color currentColor)
@@ -347,6 +348,14 @@ Rectangle {
                     tooltipText: I18n.trFor("quickCapture", "Save") + " (Ctrl+S) · " + I18n.trFor("quickCapture", "Save As") + " (Ctrl+Shift+S)"
                     onLeftClicked: root.saveRequested()
                     onRightClicked: root.saveAsRequested()
+                }
+
+                DankActionButton {
+                    iconName: "cloud_upload"
+                    buttonSize: Constants.btnSize
+                    iconSize: Constants.iconSize
+                    tooltipText: I18n.trFor("quickCapture", "Upload & Copy Link") + " (Ctrl+U)"
+                    onClicked: root.uploadRequested()
                 }
 
                 DankActionButton {

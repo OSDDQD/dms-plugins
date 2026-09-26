@@ -10,6 +10,10 @@ Screenshot annotation and screen recording plugin for DankMaterialShell.
 
 <img src="screenshot.png" width="800" alt="Screenshot">
 
+## Fork: upload and share
+
+This fork ([OSDDQD/dms-plugins](https://github.com/OSDDQD/dms-plugins)) adds uploading: <kbd>Ctrl</kbd>+<kbd>U</kbd> or the cloud button uploads the edited screenshot to catbox.moe, litterbox, 0x0.st, any **rclone** remote (OneDrive, Google Drive, S3…) or a custom command, and copies the public link. See [Upload and Share](docs/user-guide.md#upload-and-share). It also makes the OCR languages configurable (**Editor → OCR Languages**, e.g. `rus+eng`).
+
 ## Documentation
 
 - **[User Guide](docs/user-guide.md)**: capture workflow, annotation tools, shortcuts, floating images, and IPC commands.
@@ -27,6 +31,7 @@ Screenshot annotation and screen recording plugin for DankMaterialShell.
 | **img2pdf**                          | PDF export                                         |
 | **tesseract**                        | OCR text scanner                                   |
 | **zbar** (`zbarimg`)                 | QR scanner                                         |
+| **curl** / **rclone** (optional)     | Upload and share (rclone only for rclone remotes)  |
 
 > [!NOTE]
 > At least one recording backend (`gpu-screen-recorder` or `wf-recorder`) is required for video capture. `gpu-screen-recorder` is recommended for optimal performance, pause/resume support, and audio (supports both native package and Flatpak `com.dec05eba.gpu_screen_recorder`); `wf-recorder` serves as a lightweight CPU-based alternative (video only, pause/resume not supported).

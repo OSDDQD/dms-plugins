@@ -16,6 +16,7 @@ Item {
     property bool isProcessing: false
     property int recordingSeconds: 0
     property string outputPath: ""
+    property string lastRecordingPath: ""
     property string targetGifPath: ""
     property string recordingState: "idle"
     property bool isCancelling: false
@@ -457,6 +458,7 @@ Item {
     }
 
     function extractThumbnailAndNotify(targetPath, durationSecs) {
+        root.lastRecordingPath = targetPath;
         const thumbPath = "/tmp/dms_recording_thumb_" + Date.now() + ".png";
         const ffmpegArgs = ["ffmpeg", "-y"];
         if (durationSecs >= 1)
@@ -466,6 +468,8 @@ Item {
             const icon = exitCode === 0 ? thumbPath : "video-x-generic";
             const filename = targetPath.split("/").pop();
             root.sendNotification(I18n.trFor("quickCapture", "Saved %1 (%2)").arg(filename).arg(formatDuration(durationSecs)), false, icon, targetPath);
+            if (setting("uploadRecordings") && root.daemon?.actions)
+                root.daemon.actions.uploadFile(targetPath, filename, null, exitCode === 0 ? thumbPath : "");
         });
     }
 

@@ -126,6 +126,26 @@ Quick Capture supports screen recording via GPU hardware acceleration or CPU fal
   ```
 - **wf-recorder**: Lightweight CPU libx264 backend (fallback; pause/resume and internal audio mixing are not supported).
 
+## Upload and Share
+
+Press <kbd>Ctrl</kbd> + <kbd>U</kbd> (or the cloud button in the toolbar) to upload the edited image and copy a public link to the clipboard. <kbd>Enter</kbd> can do the same: set **Save → Action on Enter → Upload**. A notification shows the link with an **Open** action.
+
+Providers (**Settings → Save → Upload**):
+
+| Provider | Notes |
+| --- | --- |
+| **catbox.moe** | Permanent, up to 200 MB, no account |
+| **litterbox** | Temporary: 1h / 12h / 24h / 72h |
+| **0x0.st** | 30 days to 1 year depending on size, up to 512 MB |
+| **rclone** | Any rclone remote that supports `rclone link`: OneDrive, Google Drive, Dropbox, S3… Destination like `OneDrive:Pictures/Screenshots`. Optional **RC socket** of an already running rclone (e.g. your `rclone mount` with `--rc --rc-addr unix://%t/rclone.sock --rc-no-auth`) makes uploads take seconds instead of tens of seconds |
+| **Custom command** | Any `sh` command: `$1` is the file, `$2` its name, the last printed URL is used — e.g. Zipline, XBackBone, a self-hosted S3 |
+
+If a host answers `403` from your network, set **Upload Proxy** (curl syntax, e.g. `socks5h://127.0.0.1:1080`). **Upload Recordings Automatically** uploads every finished recording; for a single one use `dms ipc call quickCapture uploadLastRecording`. The uploader itself is `scripts/upload.sh` and can be used from the shell:
+
+```bash
+sh scripts/upload.sh rclone ./shot.png shot.png "OneDrive:Pictures/Screenshots"
+```
+
 ## Pin to Desktop
 
 - Press <kbd>Ctrl</kbd> + <kbd>F</kbd> to export and float the image.
@@ -151,6 +171,8 @@ dms ipc call quickCapture screenshot region float
 | `openImage` | path, action | Open an image in the annotator |
 | `close` | none | Close the annotator |
 | `showHistory` | none | Open recent edits |
+| `upload` | path | Upload any file with the configured provider and copy its link |
+| `uploadLastRecording` | none | Upload the last recording of this session |
 
 See the [IPC and Settings Reference](ipc-and-settings.md) for the complete command and configuration reference.
 

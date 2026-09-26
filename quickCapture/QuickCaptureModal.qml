@@ -1752,7 +1752,7 @@ Item {
             cropCommandId: "crop-ocr-temp",
             scanCommandId: "run-ocr",
             cleanupCommandId: "cleanup-ocr-temp",
-            scanArgs: path => ["tesseract", path, "-", "-l", "eng"],
+            scanArgs: path => ["tesseract", path, "-", "-l", String((config && config.pluginData && config.pluginData.ocrLanguages) || "eng")],
             noResultMessage: I18n.trFor("quickCapture", "No text detected"),
             scanErrorMessage: I18n.trFor("quickCapture", "OCR failed")
         };
@@ -3529,6 +3529,10 @@ Item {
             captureActions.performFloatAction();
             return window.acceptKeyEvent(event);
         }
+        if (hasCtrl && token === "U") {
+            captureActions.performUpload();
+            return window.acceptKeyEvent(event);
+        }
         if (hasCtrl && token === "X") {
             window.currentTool = window.currentTool === "crop" ? window.lastActiveTool : "crop";
             return window.acceptKeyEvent(event);
@@ -4773,6 +4777,9 @@ Item {
                     }
                     onCopyAndSaveRequested: {
                         window.runToolbarAction(captureActions.performCopyAndSave, moreToolsMenu);
+                    }
+                    onUploadRequested: {
+                        window.runToolbarAction(captureActions.performUpload, moreToolsMenu);
                     }
                     onCloseRequested: {
                         window.runToolbarAction(window.discardAndClose, moreToolsMenu);
