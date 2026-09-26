@@ -110,6 +110,7 @@ const values = {
     ocrLanguages: "eng",
     uploadProvider: "0x0",
     upload0x0Url: "https://0x0.st",
+    upload0x0Token: "",
     uploadRcloneRemote: "",
     uploadRcloneRcSocket: "",
     uploadLitterboxTime: "24h",
