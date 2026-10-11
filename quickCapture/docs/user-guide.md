@@ -93,13 +93,15 @@ Hold <kbd>Shift</kbd> while drawing to constrain shapes: Pen draws straight line
 
 | Key | Action |
 | --- | --- |
-| <kbd>Enter</kbd> | Done; save or copy according to settings |
-| <kbd>Esc</kbd> | Discard and close |
+| <kbd>Enter</kbd> | Done; save or copy according to settings (or commit text when typing) |
+| <kbd>Shift</kbd> + <kbd>Enter</kbd> / <kbd>Ctrl</kbd> + <kbd>Enter</kbd> | Insert newline when typing text |
+| <kbd>Esc</kbd> | Discard and close (or cancel text input when typing) |
 | <kbd>Ctrl</kbd> + <kbd>Z</kbd> | Undo |
 | <kbd>Ctrl</kbd> + <kbd>Y</kbd> / <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo |
 | <kbd>Ctrl</kbd> + <kbd>S</kbd> | Save to file |
 | <kbd>Ctrl</kbd> + <kbd>C</kbd> | Copy to clipboard |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> | Anonymous copy |
+| <kbd>Ctrl</kbd> + <kbd>V</kbd> | Paste image or text from system clipboard |
 | <kbd>Ctrl</kbd> + <kbd>A</kbd> | Copy and save |
 | <kbd>Ctrl</kbd> + <kbd>F</kbd> | Float image |
 | <kbd>Ctrl</kbd> + <kbd>X</kbd> | Crop or resize |

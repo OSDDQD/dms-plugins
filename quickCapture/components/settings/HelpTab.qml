@@ -90,6 +90,10 @@ SettingsGroup {
             action: I18n.trFor("quickCapture", "Anonymous Copy")
         },
         {
+            key: "Ctrl + V",
+            action: I18n.trFor("quickCapture", "Paste from Clipboard")
+        },
+        {
             key: "Ctrl + A",
             action: I18n.trFor("quickCapture", "Copy & Save")
         },

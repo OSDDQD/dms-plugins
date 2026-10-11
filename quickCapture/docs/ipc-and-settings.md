@@ -86,12 +86,14 @@ Pressing these keys changes the active tool:
 - `Tab`: Swap between the two most recently used tool presets.
 
 ### Action Controls
-- `Enter`: Complete and save/copy (depends on preferences).
-- `Esc`: Cancel, discard changes, and close.
+- `Enter`: Complete and save/copy (depends on preferences), or commit text when typing.
+- `Shift + Enter` / `Ctrl + Enter`: Insert newline when typing text.
+- `Esc`: Cancel, discard changes, and close (or cancel active text input).
 - `Ctrl + Z` / **Mouse Back Button**: Undo the latest vector stroke.
 - `Ctrl + Y` / `Ctrl + Shift + Z` / **Mouse Forward Button**: Redo the latest undone vector stroke.
 - `Ctrl + C`: Copy the current canvas to the clipboard.
 - `Ctrl + Shift + C` / **Right-click Copy Button**: Copy canvas anonymously to clipboard (randomized filename & stripped metadata).
+- `Ctrl + V`: Paste image or text from system clipboard onto canvas at cursor.
 - `Ctrl + S`: Save the canvas directly as a file.
 - `Ctrl + A`: Copy to clipboard and save as file simultaneously.
 - `Ctrl + F`: Float image to always-on-top window.
