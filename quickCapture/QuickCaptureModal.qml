@@ -3814,11 +3814,6 @@ Item {
             }
             const isEnter = event.key === Qt.Key_Return || event.key === Qt.Key_Enter;
             if (isEnter) {
-                if (event.modifiers & Qt.ControlModifier) {
-                    Qt.inputMethod.commit();
-                    Qt.callLater(() => window.commitTypingText());
-                    return window.acceptKeyEvent(event);
-                }
                 if (window.inlineTextEditorItem)
                     window.inlineTextEditorItem.handleEnterKey(event);
                 else

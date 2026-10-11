@@ -143,7 +143,8 @@ Item {
         }
 
         function handleEnterKey(event) {
-            const shouldCommit = !!(event.modifiers & Qt.ControlModifier);
+            const hasModifier = !!(event.modifiers & (Qt.ShiftModifier | Qt.ControlModifier));
+            const shouldCommit = !hasModifier;
             if (!editor.window || !editor.editing)
                 return;
             if (inputMethodComposing) {
