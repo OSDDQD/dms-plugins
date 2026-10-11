@@ -169,7 +169,9 @@ function configureTextContext(ctx, stroke, Theme) {
     if (stroke.isBold) style += "bold ";
     ctx.font = `${style}${Math.round(stroke.width)}px ${textFontFamily(stroke, Theme)}`;
     ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
+    // "top" places the glyph baseline at y + ascent, matching the first line
+    // of the inline TextEdit so committed text does not jump vertically.
+    ctx.textBaseline = "top";
 }
 
 /**
@@ -199,6 +201,18 @@ function handleColors(Theme) {
 }
 
 /**
+ * Returns the line advance for a text stroke. Uses the font line spacing ratio
+ * captured from the inline editor (QTextDocument advances lines by
+ * QFontMetrics::lineSpacing), falling back to the legacy multiplier.
+ * @param {object} stroke - Text stroke data.
+ * @returns {number} Line advance in canvas units.
+ */
+function textLineHeight(stroke) {
+    const ratio = Number(stroke.lineSpacingRatio);
+    return stroke.width * (ratio > 0 ? ratio : Constants.textLineHeightMultiplier);
+}
+
+/**
  * Measures the same multiline text layout used by drawStroke(). Width comes
  * from Canvas and vertical bounds come from the renderer's line boxes.
  * @param {object} ctx - The Canvas 2D context.
@@ -212,7 +226,7 @@ function measureTextLayout(ctx, stroke, Theme) {
     const pt = (stroke.isSpeechBubble && stroke.points.length >= 2) ? stroke.points[1] : stroke.points[0];
     const fontSize = stroke.width;
     const lines = String(stroke.text || "").split("\n");
-    const lineHeight = fontSize * Constants.textLineHeightMultiplier;
+    const lineHeight = textLineHeight(stroke);
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -1147,7 +1161,7 @@ function drawStroke(ctx, stroke, Helpers, Qt, Theme, config) {
         configureTextContext(ctx, stroke, Theme);
 
         const lines = (stroke.text || "").split("\n");
-        const lineHeight = stroke.width * Constants.textLineHeightMultiplier;
+        const lineHeight = textLineHeight(stroke);
 
         const isBubble = stroke.isSpeechBubble && stroke.points.length >= 2;
         const textBounds = measureTextLayout(ctx, stroke, Theme);
@@ -1351,7 +1365,7 @@ function drawStroke(ctx, stroke, Helpers, Qt, Theme, config) {
 
         if (!config.skipText) {
             for (let li = 0; li < lines.length; li++) {
-                ctx.fillText(lines[li], pt.x, pt.y + li * lineHeight + stroke.width / 2);
+                ctx.fillText(lines[li], pt.x, pt.y + li * lineHeight);
             }
         }
 

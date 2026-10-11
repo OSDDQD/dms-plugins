@@ -1325,6 +1325,8 @@ function copyStrokeProperties(source, target) {
         target.isItalic = source.isItalic;
     if (source.isUnderline !== undefined)
         target.isUnderline = source.isUnderline;
+    if (source.lineSpacingRatio !== undefined)
+        target.lineSpacingRatio = source.lineSpacingRatio;
     if (source.counter !== undefined)
         target.counter = source.counter;
     if (source.format !== undefined)

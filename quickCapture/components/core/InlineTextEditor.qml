@@ -21,10 +21,10 @@ Item {
 
     visible: editing
     z: 20
-    x: editor.displayOrigin.x - editor.horizontalPadding
-    y: editor.displayOrigin.y - editor.verticalPadding
-    width: Math.max(1, textEdit.contentWidth + editor.horizontalPadding * 2)
-    height: Math.max(editor.fontSize, textEdit.contentHeight + editor.verticalPadding * 2)
+    x: editor.displayOrigin.x - editor.horizontalPadding * editor.displayScale
+    y: editor.displayOrigin.y - editor.verticalPadding * editor.displayScale
+    width: Math.max(1, (textEdit.contentWidth + editor.horizontalPadding * 2) * editor.displayScale)
+    height: Math.max(editor.fontSize, textEdit.contentHeight + editor.verticalPadding * 2) * editor.displayScale
     rotation: window && window.editingStroke ? Number(window.editingStroke.rotation) || 0 : 0
     transformOrigin: Item.Center
 
@@ -44,9 +44,20 @@ Item {
         const factor = window.effectiveBackgroundMode !== "none" ? window.backgroundScaleFactor : 1;
         return Qt.point((offsetX + (point.x - editor.canvasOriginX) * factor) * window.editScale, (offsetY + (point.y - editor.canvasOriginY) * factor) * window.editScale);
     }
-    readonly property real fontSize: window ? window.textFontSize * editor.displayScale : 16
+    // Logical (canvas-unit) font size, identical to the Canvas renderer's
+    // Math.round(stroke.width). The TextEdit is scaled by displayScale instead
+    // of shrinking font.pixelSize, which is an int and would truncate.
+    readonly property int fontSize: window ? Math.round(window.textFontSize) : 16
     readonly property real horizontalPadding: Math.max(2, editor.fontSize * 0.02)
     readonly property real verticalPadding: Math.max(1, editor.fontSize * 0.02)
+    // Line advance relative to font size, as laid out by TextEdit. Stored on
+    // committed strokes so the Canvas renderer reproduces the same spacing.
+    readonly property real lineSpacingRatio: editor.fontSize > 0 ? editorFontMetrics.lineSpacing / editor.fontSize : 0
+
+    FontMetrics {
+        id: editorFontMetrics
+        font: textEdit.font
+    }
 
     function synchronizeFromSession() {
         if (!editor.editing || !editor.window)
@@ -73,11 +84,10 @@ Item {
 
     TextEdit {
         id: textEdit
-        anchors.fill: parent
-        anchors.leftMargin: editor.horizontalPadding
-        anchors.topMargin: editor.verticalPadding
-        anchors.rightMargin: editor.horizontalPadding
-        anchors.bottomMargin: editor.verticalPadding
+        x: editor.horizontalPadding * editor.displayScale
+        y: editor.verticalPadding * editor.displayScale
+        scale: editor.displayScale
+        transformOrigin: Item.TopLeft
         focus: editor.editing
         activeFocusOnPress: true
         selectByMouse: true

@@ -2088,10 +2088,10 @@ Item {
 
         ctx.font = `${styleStr}${Math.round(window.textFontSize)}px ${DrawingRenderer.canvasFontFamily(window.textFontFamily)}`;
         ctx.textAlign = "left";
-        ctx.textBaseline = "middle";
+        ctx.textBaseline = "top";
 
         const previewLines = rawText.split("\n");
-        const lineH = window.textFontSize * 1.35;
+        const lineH = window.textFontSize * window.textLineSpacingRatio();
 
         if (window.typingIsSpeechBubble && rawText.length > 0) {
             const targetCoords = window.typingHasTargetCoords ? window.typingTargetCoords : window.defaultTypingSpeechBubbleTarget();
@@ -2144,7 +2144,7 @@ Item {
         }
 
         for (let li = 0; li < previewLines.length; li++) {
-            ctx.fillText(previewLines[li], window.typingCoords.x, window.typingCoords.y + li * lineH + window.textFontSize / 2);
+            ctx.fillText(previewLines[li], window.typingCoords.x, window.typingCoords.y + li * lineH);
         }
 
         if (window.textUnderline) {
@@ -5413,6 +5413,16 @@ Item {
         window.repaintActiveCanvas();
     }
 
+    /**
+     * Returns the text line advance relative to font size, measured from the
+     * inline editor font so Canvas output matches TextEdit layout.
+     * @returns {number} Line spacing ratio.
+     */
+    function textLineSpacingRatio() {
+        const ratio = window.inlineTextEditorItem ? window.inlineTextEditorItem.lineSpacingRatio : 0;
+        return ratio > 0 ? ratio : Constants.textLineHeightMultiplier;
+    }
+
     function getTypingStrokeStyle(textStr) {
         return {
             tool: "text",
@@ -5424,6 +5434,7 @@ Item {
             isUnderline: window.textUnderline,
             hasBackground: window.textBackground,
             cornerRadius: window.textCornerRadius,
+            lineSpacingRatio: window.textLineSpacingRatio(),
             text: textStr
         };
     }
@@ -5460,6 +5471,7 @@ Item {
         stroke.isUnderline = style.isUnderline;
         stroke.hasBackground = style.hasBackground;
         stroke.cornerRadius = style.cornerRadius;
+        stroke.lineSpacingRatio = style.lineSpacingRatio;
     }
 
     function removeTypingEditStroke() {
