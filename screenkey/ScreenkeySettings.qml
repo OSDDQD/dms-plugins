@@ -139,10 +139,11 @@ print(json.dumps(devs))
         SectionTitle {
             text: I18n.tr("Layout & Animations")
             icon: "display_settings"
-            showReset: positionSetting.isDirty || animationTypeSetting.isDirty || roundedKeycapsSetting.isDirty || overlayOpacitySetting.isDirty || marginSizeSetting.isDirty || charLimitSetting.isDirty || textColorSetting.isDirty || keycapTextColorSetting.isDirty || historyLimitSetting.isDirty || bgColorSetting.isDirty || customSeparatorSetting.isDirty
+            showReset: positionSetting.isDirty || animationTypeSetting.isDirty || keycapStyleSetting.isDirty || roundedKeycapsSetting.isDirty || overlayOpacitySetting.isDirty || marginSizeSetting.isDirty || charLimitSetting.isDirty || textColorSetting.isDirty || keycapTextColorSetting.isDirty || historyLimitSetting.isDirty || bgColorSetting.isDirty || customSeparatorSetting.isDirty
             onResetClicked: {
                 positionSetting.resetToDefault();
                 animationTypeSetting.resetToDefault();
+                keycapStyleSetting.resetToDefault();
                 roundedKeycapsSetting.resetToDefault();
                 overlayOpacitySetting.resetToDefault();
                 marginSizeSetting.resetToDefault();
@@ -183,6 +184,21 @@ print(json.dumps(devs))
                 { label: I18n.tr("None"), value: "none" }
             ]
             defaultValue: "none"
+        }
+
+        SelectionSettingPlus {
+            id: keycapStyleSetting
+            settingKey: "keycapStyle"
+            label: I18n.tr("Keycap Style")
+            description: I18n.tr("Visual style for rendered keycaps (Default, Laptop, Low Profile, PBT, Minimal)")
+            options: [
+                { label: I18n.tr("Default"), value: "default" },
+                { label: I18n.tr("Laptop"), value: "laptop" },
+                { label: I18n.tr("Low Profile"), value: "lowprofile" },
+                { label: I18n.tr("PBT"), value: "pbt" },
+                { label: I18n.tr("Minimal"), value: "minimal" }
+            ]
+            defaultValue: "default"
         }
 
         Separator {}
@@ -255,29 +271,29 @@ print(json.dumps(devs))
 
         Separator {}
 
-        ColorDropdownSettingPlus {
+        ColorSettingPlus {
             id: textColorSetting
             settingKey: "textColor"
             label: I18n.tr("Normal Text Color")
-            defaultValueMode: "default"
+            defaultValue: "primary"
         }
 
         Separator {}
 
-        ColorDropdownSettingPlus {
+        ColorSettingPlus {
             id: keycapTextColorSetting
             settingKey: "keycapTextColor"
             label: I18n.tr("Keycap & Mouse Color")
-            defaultValueMode: "default"
+            defaultValue: "primary"
         }
 
         Separator {}
 
-        ColorDropdownSettingPlus {
+        ColorSettingPlus {
             id: bgColorSetting
             settingKey: "bgColor"
             label: I18n.tr("Overlay Background Color")
-            defaultValueMode: "default"
+            defaultValue: "#1e2326"
         }
 
         Separator {}
@@ -442,6 +458,24 @@ print(json.dumps(devs))
                 I18n.tr("Displays keystrokes on an always-on-top floating screen overlay."),
                 I18n.tr("Key combinations are rendered as visual keycaps, and standard typing as stream text."),
                 I18n.tr("Ensure your user belongs to the <b>input</b> group to read keyboard events without root.")
+            ]
+        }
+    }
+
+    SettingsCard {
+        SectionTitle {
+            id: creditsTitle
+            text: I18n.tr("Credits")
+            icon: "favorite"
+            collapsible: true
+            settingKey: "creditsExpanded"
+        }
+
+        CreditsList {
+            expanded: creditsTitle.isExpanded
+            items: [
+                I18n.tr("Keycap styles and icon system ported in collaboration with <b>@Tz-slayer</b> (keystrokes)."),
+                I18n.tr("Original visual design and keycap styling inspired by <b>@mulaRahul</b> (keyviz).")
             ]
         }
     }
