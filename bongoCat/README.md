@@ -57,7 +57,7 @@ Select a specific keyboard in settings to filter input. If a non-keyboard device
 ## Credits
 
 - **[@StrayRogue](https://x.com/StrayRogue)** — Creator of the original Bongo Cat artwork used by the bongocat widget
-- **[BongoCat](https://github.com/ayangweb/BongoCat)** — Desktop implementation reference
+
 
 ## License
 

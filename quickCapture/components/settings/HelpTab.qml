@@ -295,4 +295,38 @@ SettingsGroup {
             text: "binds {\n    Print { spawn \"dms\" \"ipc\" \"call\" \"quickCapture\" \"screenshot\" \"region\" \"edit\"; }\n}"
         }
     }
+
+    SettingsSection {
+        title: I18n.trFor("quickCapture", "Credits")
+        icon: "favorite"
+        resettable: false
+        collapsible: true
+        expanded: false
+        stateKey: "creditsExpanded"
+
+        CreditsList {
+            expanded: true
+            items: [
+                {
+                    author: "Gradia Capture",
+                    url: "https://github.com/AlexanderVanhee/gradia-capture",
+                    role: I18n.trFor("quickCapture", "Toolbar design and layout inspiration."),
+                    icon: "palette"
+                },
+                {
+                    author: "Flameshot",
+                    url: "https://github.com/flameshot-org/flameshot",
+                    role: I18n.trFor("quickCapture", "Radial menu and tool interaction patterns."),
+                    icon: "camera"
+                },
+                {
+                    author: "Snapzy",
+                    url: "https://github.com/duongductrong/Snapzy",
+                    role: I18n.trFor("quickCapture", "Floating window and continuous editing workflow."),
+                    icon: "open_in_new"
+                }
+            ]
+        }
+    }
 }
+

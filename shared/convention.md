@@ -16,6 +16,7 @@ To maintain a consistent user experience, the settings page should follow this o
 4.  **Appearance/Display**: UI-related settings (e.g., icon only mode, date formats).
 5.  **Feedback/Notifications**: Sound, haptics, and toast settings.
 6.  **Advanced**: Rarely used or complex configurations.
+7.  **Credits**: An optional `SettingsCard` containing `CreditsList` at the bottom for author/inspiration attributions without external links.
 
 ### Example:
 ```qml

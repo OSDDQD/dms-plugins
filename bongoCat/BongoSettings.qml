@@ -361,4 +361,27 @@ PluginSettings {
             ]
         }
     }
+
+    SettingsCard {
+        SectionTitle {
+            id: creditsTitle
+            text: I18n.tr("Credits")
+            icon: "favorite"
+            collapsible: true
+            settingKey: "creditsExpanded"
+        }
+
+        CreditsList {
+            expanded: creditsTitle.isExpanded
+            items: [
+                {
+                    author: "@StrayRogue",
+                    url: "https://x.com/StrayRogue",
+                    role: I18n.tr("Creator of the original Bongo Cat artwork."),
+                    icon: "brush"
+                }
+            ]
+        }
+    }
 }
+

@@ -242,4 +242,33 @@ PluginSettings {
             }
         }
     }
+
+    SettingsCard {
+        SectionTitle {
+            id: creditsTitle
+            text: I18n.trFor("emojiPicker", "Credits")
+            icon: "favorite"
+            collapsible: true
+            settingKey: "creditsExpanded"
+        }
+
+        CreditsList {
+            expanded: creditsTitle.isExpanded
+            items: [
+                {
+                    author: "Emote",
+                    url: "https://github.com/tom-james-watson/emote",
+                    role: I18n.trFor("emojiPicker", "Emoji catalog and inspiration."),
+                    icon: "mood"
+                },
+                {
+                    author: "OpenMoji",
+                    url: "https://openmoji.org/",
+                    role: I18n.trFor("emojiPicker", "Emoji metadata."),
+                    icon: "palette"
+                }
+            ]
+        }
+    }
 }
+

@@ -437,28 +437,28 @@ PluginSettings {
             settingKey: "creditsExpanded"
         }
 
-        Column {
-            width: parent.width
-            spacing: Theme.spacingXS
-            visible: creditsTitle.isExpanded
-            topPadding: Theme.spacingXS
-            bottomPadding: Theme.spacingXS
-
-            StyledText {
-                width: parent.width
-                wrapMode: Text.WordWrap
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.surfaceText
-                text: I18n.tr("UI redesign by <b>Zurvan</b>.")
-            }
-
-            StyledText {
-                width: parent.width
-                wrapMode: Text.WordWrap
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.surfaceVariantText
-                text: I18n.tr("Sound assets and inspiration from Blankie & Blanket.")
-            }
+        CreditsList {
+            expanded: creditsTitle.isExpanded
+            items: [
+                {
+                    author: "Zurvan",
+                    url: "https://github.com/georgestafilidis",
+                    role: I18n.tr("UI redesign concept and aesthetics."),
+                    icon: "palette"
+                },
+                {
+                    author: "Blankie",
+                    url: "https://github.com/codybrom/Blankie",
+                    role: I18n.tr("Sound assets and inspiration."),
+                    icon: "library_music"
+                },
+                {
+                    author: "Blanket",
+                    url: "https://github.com/rafaelmardojai/blanket",
+                    role: I18n.tr("Sound assets and audio player inspiration."),
+                    icon: "library_music"
+                }
+            ]
         }
     }
 }

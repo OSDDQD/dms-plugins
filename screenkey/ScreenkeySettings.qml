@@ -474,8 +474,18 @@ print(json.dumps(devs))
         CreditsList {
             expanded: creditsTitle.isExpanded
             items: [
-                I18n.tr("Keycap styles and icon system ported in collaboration with <b>@Tz-slayer</b> (keystrokes)."),
-                I18n.tr("Original visual design and keycap styling inspired by <b>@mulaRahul</b> (keyviz).")
+                {
+                    author: "@Tz-slayer",
+                    url: "https://github.com/Tz-slayer/keystrokes",
+                    role: I18n.tr("Keycap styles (Laptop, Low Profile, PBT, Minimal) and icon system ported from <b>keystrokes</b>."),
+                    icon: "keyboard"
+                },
+                {
+                    author: "@mulaRahul",
+                    url: "https://github.com/mulaRahul/keyviz",
+                    role: I18n.tr("Original visual design and keycap styling inspired by <b>keyviz</b>."),
+                    icon: "palette"
+                }
             ]
         }
     }

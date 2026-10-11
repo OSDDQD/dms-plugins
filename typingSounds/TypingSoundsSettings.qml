@@ -245,4 +245,27 @@ print(json.dumps(devs))
             ]
         }
     }
+
+    SettingsCard {
+        SectionTitle {
+            id: creditsTitle
+            text: I18n.tr("Credits")
+            icon: "favorite"
+            collapsible: true
+            settingKey: "creditsExpanded"
+        }
+
+        CreditsList {
+            expanded: creditsTitle.isExpanded
+            items: [
+                {
+                    author: "Mechvibes",
+                    url: "https://github.com/hainguyents13/mechvibes",
+                    role: I18n.tr("Bundled mechanical keyboard sound packs."),
+                    icon: "keyboard"
+                }
+            ]
+        }
+    }
 }
+

@@ -53,6 +53,7 @@ PluginSettings {
 | **TagChip** | Small, rounded badges for categories or status indicators. |
 | **HintSection** | A standardized way to show tips at the bottom of a popout. |
 | **MediaHeader** | Specialized header for plugins that handle media (e.g., sound, music). |
+| **CreditsList** | Standardized list for displaying attributions and inspirations without external links. |
 
 ## Contributing
 If you create a reusable UI pattern that could benefit other plugins, feel free to submit a pull request to add it to `dms-common`.
