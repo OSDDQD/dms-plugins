@@ -7,7 +7,6 @@ Thanks for contributing! Here's everything you need to get started.
 ## Before you start
 
 - Read [`docs/developer-guide.md`](docs/developer-guide.md) — it covers the file layout, architectural patterns, and a step-by-step guide for adding a new tool.
-- Check [`docs/glossary.md`](docs/glossary.md) if a term in the codebase is unfamiliar.
 - Search [existing issues](https://github.com/hthienloc/dms-quick-capture/issues) before opening a new one.
 
 ---
