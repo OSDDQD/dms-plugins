@@ -27,6 +27,13 @@ A collection of plugins for [DankMaterialShell](https://github.com/AvengeMedia/D
 | [Timer](timer) | DankBar Widget / Popout | Countdown timer with presets, notifications, and timeout actions. |
 | [Typing Sounds](typingSounds) | Composite (Daemon / Control Center) | Play mechanical keyboard sounds globally as you type with Control Center toggle. |
 
+## Documentation
+
+- **[Design System & Tokens](docs/design-system.md)**: Color rules, sizing matrix, spacing, corner radius, and typography tokens.
+- **[Components Reference](docs/components.md)**: Standard DMS widgets and repository shared UI components.
+- **[Conventions & Native Services](docs/conventions.md)**: Plugin directory standards, settings layout, and native replacements.
+- **[Development & Testing](docs/development.md)**: Development setup, IPC hot-reloading, and linting suite.
+
 ## Contributors
 
 Special thanks to all contributors who have helped develop and improve these plugins:

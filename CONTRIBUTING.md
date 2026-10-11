@@ -17,10 +17,10 @@ Contributions to plugins in this repository are welcome. Follow these guidelines
 
 Consult these focused guides before implementing or updating plugin UI:
 
-- **[Design System & Sizing Matrix](docs/design-system.md):** Complete reference for `Theme.buttonHeight*`, `Theme.iconSize*`, spacing, corner radius, and color roles.
-- **[Components Guide](docs/components-guide.md):** When and how to use `DankActionButton`, `DankDropdown`, `DankSlider`, `DankKeycap`, and settings widgets.
-- **[Built-ins & Native Services](docs/builtins-and-services.md):** Native replacements for external CLI tools and shell execution.
-- **[Testing & Verification](docs/testing-and-verification.md):** IPC hot-reloading commands, testing workflows, and linting scripts.
+- **[Design System & Tokens](docs/design-system.md):** Complete reference for `Theme.buttonHeight*`, `Theme.iconSize*`, spacing, corner radius, and color roles.
+- **[Components Reference](docs/components.md):** Official DMS widgets and shared settings components.
+- **[Conventions & Native Services](docs/conventions.md):** Directory standards, settings layout, and native CLI/QML replacements.
+- **[Development & Testing](docs/development.md):** IPC hot-reloading commands, testing workflows, and linting scripts.
 
 ---
 
