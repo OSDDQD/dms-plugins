@@ -2688,7 +2688,7 @@ Item {
         insertImageDialog.open();
     }
 
-    function insertImageFromFile(filePath) {
+    function insertImageFromFile(filePath, targetPos) {
         if (!filePath)
             return;
         let fileUrl = String(filePath).trim();
@@ -2710,8 +2710,9 @@ Item {
 
             const visW = window.canvasWidth || 800;
             const visH = window.canvasHeight || 600;
-            const centerX = visW / 2;
-            const centerY = visH / 2;
+            const pos = targetPos || Qt.point(visW / 2, visH / 2);
+            const centerX = pos.x;
+            const centerY = pos.y;
 
             const maxW = visW * 0.5;
             const maxH = visH * 0.5;
@@ -2761,6 +2762,47 @@ Item {
                 }
             });
         }
+    }
+
+    function pasteFromSystemClipboard() {
+        const destPath = `/tmp/quickcapture_paste_${Date.now()}`;
+        const targetPos = window.getCursorAbsolutePoint();
+
+        Proc.runCommand("quickCapture.pasteFromClipboard", ["sh", "-c", '"$1" cl paste > "$2" 2>/dev/null', "_", Proc.dmsBin, destPath], (stdout, exitCode) => {
+            if (exitCode !== 0) {
+                // Clipboard empty or binary output failed, try fallback
+                if (window.copiedStroke) {
+                    window.beginPastePreview();
+                }
+                return;
+            }
+
+            Proc.runCommand("quickCapture.checkPasteFileType", ["file", "-b", destPath], (fileOut, fileExit) => {
+                if (fileExit === 0 && (fileOut || "").toLowerCase().includes("image")) {
+                    window.insertImageFromFile(destPath, targetPos);
+                    return;
+                }
+
+                // Check as text
+                Proc.runCommand("quickCapture.readPasteText", ["cat", destPath], (textOut, textExit) => {
+                    Proc.runCommand("quickCapture.cleanupPasteTmp", ["rm", "-f", "--", destPath]);
+                    const textStr = (textOut || "").trim();
+                    if (textExit === 0 && textStr.length > 0) {
+                        const stroke = window.getTypingStrokeStyle(textStr);
+                        stroke.isSpeechBubble = false;
+                        stroke.points = [Qt.point(targetPos.x, targetPos.y)];
+                        window.pushStroke(stroke);
+                        window.currentTool = "select";
+                        window.selectStrokeForEditing(stroke, true);
+                        return;
+                    }
+
+                    if (window.copiedStroke) {
+                        window.beginPastePreview();
+                    }
+                });
+            });
+        });
     }
 
     function getHoveredHandle(mx, my) {
@@ -3584,6 +3626,11 @@ Item {
 
         if (token === "V" && !hasCtrl) {
             window.currentTool = "select";
+            return window.acceptKeyEvent(event);
+        }
+
+        if (token === "V" && hasCtrl) {
+            window.pasteFromSystemClipboard();
             return window.acceptKeyEvent(event);
         }
 
