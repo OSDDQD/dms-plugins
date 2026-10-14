@@ -30,6 +30,7 @@ body:
         - mediaDownloader
         - niriDS
         - ocrScanner
+        - persona5Calendar
         - quickCapture
         - screenkey
         - takeABreak

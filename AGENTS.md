@@ -31,7 +31,7 @@ Every plugin declares its surface type in `plugin.json`. Choose the simplest, mo
 | `widget` | `PluginComponent` | DankBar pill + popout card / Control Center | Persistent bar presence needed for quick status readout, toggling state, or interacting via popout | `timer`, `ipIndicator`, `hydrate`, `breathing`, `lutrisLauncher`, `bongoCat`, `ambientSound`, `handMirror`, `hiddenBar`, `mediaDownloader`, `ocrScanner` |
 | `daemon` | `PluginComponent` | Background service or standalone on-demand modal/overlay | Headless background event/timer listener, or on-demand modal/overlay triggered via shortcut/IPC without cluttering the bar | `emojiPicker` |
 | `launcher` | `Item` | DMS Launcher search result provider | Actionable search results, conversions, or query integrations inside DMS Launcher (`trigger` based) | `kaomojiPicker` |
-| `desktop` | `DesktopPluginComponent` | Floating desktop widget | Persistent or draggable widget placed directly onto the desktop workspace | `activateLinux` |
+| `desktop` | `DesktopPluginComponent` | Floating desktop widget | Persistent or draggable widget placed directly onto the desktop workspace | `activateLinux`, `persona5Calendar` |
 | `composite` | Multiple entry components | Multi-surface integration | Complex plugins where distinct surfaces (e.g. daemon + Control Center toggle / bar widget) are strictly interdependent | `screenkey`, `typingSounds`, `takeABreak`, `quickCapture`, `desktopWidgetToggle`, `niriDS` |
 
 ### Type Selection Principles: Avoid Over-Engineering
