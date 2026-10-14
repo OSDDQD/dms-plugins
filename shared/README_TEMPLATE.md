@@ -73,6 +73,10 @@ Describe any settings customizable via the DMS settings panel or directly in `se
 
 * **Property Name** (`type`): [Default Value] - [Description]
 
+## Credits
+
+- **[@Author](https://...)** — [Creator of original concept / artwork / upstream project]
+
 ## Development
 
 1. Sync local changes to the live DMS environment:

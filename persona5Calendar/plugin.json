@@ -1,0 +1,19 @@
+{
+  "id": "persona5Calendar",
+  "name": "Persona 5 Calendar",
+  "description": "Layered Persona 5 / Royal desktop calendar HUD with animated weather",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Loc Huynh",
+  "icon": "calendar_month",
+  "type": "desktop",
+  "capabilities": [
+    "desktop-widget"
+  ],
+  "component": "./Persona5CalendarWidget.qml",
+  "settings": "./Persona5CalendarSettings.qml",
+  "permissions": [
+    "settings_read",
+    "settings_write"
+  ]
+}

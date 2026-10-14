@@ -1,0 +1,80 @@
+{
+  "Action triggered when clicking anywhere on the calendar.": {
+    "Action triggered when clicking anywhere on the calendar.": ""
+  },
+  "Adjust transparency of the calendar HUD.": {
+    "Adjust transparency of the calendar HUD.": ""
+  },
+  "Animate Weather": {
+    "Animate Weather": ""
+  },
+  "Animation Speed": {
+    "Animation Speed": ""
+  },
+  "Appearance": {
+    "Appearance": ""
+  },
+  "Calculate time periods using Persona 5 game schedule or local solar calculations via DMS WeatherService.": {
+    "Calculate time periods using Persona 5 game schedule or local solar calculations via DMS WeatherService.": ""
+  },
+  "Choose standard Persona 5 (Vanilla), Persona 5 Royal, or Dynamic (auto-switches to Royal in Jan & Feb).": {
+    "Choose standard Persona 5 (Vanilla), Persona 5 Royal, or Dynamic (auto-switches to Royal in Jan & Feb).": ""
+  },
+  "Click Action": {
+    "Click Action": ""
+  },
+  "Cycle weather icon frames for game-authentic animation.": {
+    "Cycle weather icon frames for game-authentic animation.": ""
+  },
+  "Display Weather Icon": {
+    "Display Weather Icon": ""
+  },
+  "Dynamic (Vanilla, Royal in Jan/Feb)": {
+    "Dynamic (Vanilla, Royal in Jan/Feb)": ""
+  },
+  "Force Refresh Weather": {
+    "Force Refresh Weather": ""
+  },
+  "Interactions": {
+    "Interactions": ""
+  },
+  "Interval between weather animation frames (lower is faster).": {
+    "Interval between weather animation frames (lower is faster).": ""
+  },
+  "None": {
+    "None": ""
+  },
+  "Persona 5 Game Schedule": {
+    "Persona 5 Game Schedule": ""
+  },
+  "Royal (Persona 5 Royal)": {
+    "Royal (Persona 5 Royal)": ""
+  },
+  "Show Date & Weather Toast": {
+    "Show Date & Weather Toast": ""
+  },
+  "Show current weather condition integrated with DMS WeatherService.": {
+    "Show current weather condition integrated with DMS WeatherService.": ""
+  },
+  "Solar Schedule (Sun Times)": {
+    "Solar Schedule (Sun Times)": ""
+  },
+  "Theme Palette": {
+    "Theme Palette": ""
+  },
+  "Time & Weather": {
+    "Time & Weather": ""
+  },
+  "Time of Day Logic": {
+    "Time of Day Logic": ""
+  },
+  "Vanilla (Persona 5)": {
+    "Vanilla (Persona 5)": ""
+  },
+  "Weather refreshed": {
+    "Weather refreshed": ""
+  },
+  "Widget Opacity": {
+    "Widget Opacity": ""
+  }
+}

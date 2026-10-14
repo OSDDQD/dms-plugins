@@ -21,6 +21,7 @@ A collection of plugins for [DankMaterialShell](https://github.com/AvengeMedia/D
 | [Media Downloader](mediaDownloader) | DankBar Widget / Popout | Download media via yt-dlp right from the shell. |
 | [Niri Display Settings](niriDS) | Composite (Daemon / Control Center) | Manage display scaling, resolution, and monitor profile layout for Niri. |
 | [OCR Scanner](ocrScanner) | DankBar Widget / Popout | Extract text from screen regions or clipboard images using Tesseract OCR. |
+| [Persona 5 Calendar](persona5Calendar) | Desktop Widget | Layered Persona 5 / Royal desktop calendar HUD with animated weather. |
 | [Quick Capture](quickCapture) | Composite (Daemon / Widget / Control Center) | Screenshot annotation, editor, and screen recording tool. |
 | [Screenkey](screenkey) | Composite (Daemon / Control Center) | On-screen keystroke and click visualizer with Control Center toggle. |
 | [Take a Break](takeABreak) | Composite (Daemon / Control Center) | 20-20-20 eye strain reminder with break overlay and Control Center toggle. |
