@@ -43,8 +43,8 @@ PluginComponent {
     readonly property bool showMouseClicks: root.pluginData.showMouseClicks ?? false
     readonly property string animationType: root.pluginData.animationType ?? "none"
     readonly property bool showShortcuts: root.pluginData.showShortcuts ?? true
-    readonly property var textColor: root.pluginData.textColor ?? (root.pluginData.textColorMode === "custom" ? root.pluginData.textColorCustom : "primary")
-    readonly property var keycapTextColor: root.pluginData.keycapTextColor ?? (root.pluginData.keycapTextColorMode === "custom" ? root.pluginData.keycapTextColorCustom : "primary")
+    readonly property var textColor: root.pluginData.textColor ?? (root.pluginData.textColorMode === "custom" ? root.pluginData.textColorCustom : (root.pluginData.textColorMode || "primary"))
+    readonly property var keycapTextColor: root.pluginData.keycapTextColor ?? (root.pluginData.keycapTextColorMode === "custom" ? root.pluginData.keycapTextColorCustom : (root.pluginData.keycapTextColorMode || "primary"))
     readonly property int charLimit: root.pluginData.charLimit ?? 20
     readonly property string keycapStyle: root.pluginData.keycapStyle ?? "default"
     readonly property bool roundedKeycaps: root.pluginData.roundedKeycaps ?? true
@@ -56,7 +56,7 @@ PluginComponent {
     readonly property bool showModifierStatus: root.pluginData.showModifierStatus ?? false
     readonly property string customSeparator: root.pluginData.customSeparator ?? "+"
     readonly property int historyLimit: root.pluginData.historyLimit ?? 1
-    readonly property var bgColor: root.pluginData.bgColor ?? (root.pluginData.bgColorMode === "custom" ? root.pluginData.bgColorCustom : "default")
+    readonly property var bgColor: root.pluginData.bgColor ?? (root.pluginData.bgColorMode === "custom" ? root.pluginData.bgColorCustom : (root.pluginData.bgColorMode || "default"))
     readonly property bool clickThrough: root.pluginData.clickThrough ?? true
     property var historyList: []
 
