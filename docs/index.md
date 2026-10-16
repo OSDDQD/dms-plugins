@@ -22,4 +22,4 @@ Welcome to the documentation for the `dms-plugins` ecosystem.
 4. **[Development & Testing](development.md)**
    - Local setup and symlinking.
    - Hot-reloading and testing via IPC.
-   - Code validation and compatibility checks (`qmllint`, import checkers).
+   - Code validation (`qmllint`).

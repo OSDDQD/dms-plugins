@@ -43,17 +43,9 @@ dms ipc call <pluginName> toggle
 
 ## 4. Linting & Validation
 
-Before committing changes, run the validation checks:
+Before committing changes, run the QML syntax check:
 
 ```bash
-# 1. QML syntax check
 qmllint <pluginName>/*.qml <pluginName>/shared/*.qml
-
-# 2. Check for unused QML imports
-python3 scripts/check_unused_imports.py <pluginName>
-
-# 3. Verify backward compatibility against DMS 1.6.2 (Stable)
-python3 scripts/check_compatibility.py <pluginName>
 ```
 
-All three checks must pass with zero errors.
