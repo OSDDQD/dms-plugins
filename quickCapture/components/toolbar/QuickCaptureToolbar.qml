@@ -407,48 +407,45 @@ Rectangle {
             ToolbarGrid {
                 gap: root.isVertical ? Theme.spacingS : Theme.spacingM
 
-                Repeater {
-                    model: [
-                        {
-                            type: "padding",
-                            icon: "padding",
-                            value: root.backgroundPadding,
-                            unit: "px",
-                            visible: true
-                        },
-                        {
-                            type: "radius",
-                            icon: "rounded_corner",
-                            value: root.backgroundCornerRadius,
-                            unit: "px",
-                            visible: true
-                        },
-                        {
-                            type: "shadow",
-                            icon: "blur_on",
-                            value: root.backgroundShadowStrength,
-                            unit: "%",
-                            visible: true
-                        },
-                        {
-                            type: "angle",
-                            icon: "rotate_right",
-                            value: root.backgroundGradientAngle,
-                            unit: "°",
-                            visible: root.backgroundMode === "gradient" || root.backgroundMode === "conic"
-                        }
-                    ]
+                BackgroundMetricControl {
+                    id: paddingMetricControl
+                    compact: root.isVertical
+                    iconName: "padding"
+                    valueText: root.isVertical ? String(root.backgroundPadding) : (root.backgroundPadding + "px")
+                    onHovered: root.backgroundControlHovered("padding", paddingMetricControl)
+                    onExited: root.backgroundControlExited("padding")
+                    onWheeled: delta => root.backgroundControlWheel("padding", delta)
+                }
 
-                    delegate: BackgroundMetricControl {
-                        required property var modelData
-                        visible: modelData.visible
-                        compact: root.isVertical
-                        iconName: modelData.icon
-                        valueText: root.isVertical ? String(modelData.value) : modelData.value + modelData.unit
-                        onHovered: controlItem => root.backgroundControlHovered(modelData.type, controlItem)
-                        onExited: root.backgroundControlExited(modelData.type)
-                        onWheeled: delta => root.backgroundControlWheel(modelData.type, delta)
-                    }
+                BackgroundMetricControl {
+                    id: radiusMetricControl
+                    compact: root.isVertical
+                    iconName: "rounded_corner"
+                    valueText: root.isVertical ? String(root.backgroundCornerRadius) : (root.backgroundCornerRadius + "px")
+                    onHovered: root.backgroundControlHovered("radius", radiusMetricControl)
+                    onExited: root.backgroundControlExited("radius")
+                    onWheeled: delta => root.backgroundControlWheel("radius", delta)
+                }
+
+                BackgroundMetricControl {
+                    id: shadowMetricControl
+                    compact: root.isVertical
+                    iconName: "blur_on"
+                    valueText: root.isVertical ? String(root.backgroundShadowStrength) : (root.backgroundShadowStrength + "%")
+                    onHovered: root.backgroundControlHovered("shadow", shadowMetricControl)
+                    onExited: root.backgroundControlExited("shadow")
+                    onWheeled: delta => root.backgroundControlWheel("shadow", delta)
+                }
+
+                BackgroundMetricControl {
+                    id: angleMetricControl
+                    visible: root.backgroundMode === "gradient" || root.backgroundMode === "conic"
+                    compact: root.isVertical
+                    iconName: "rotate_right"
+                    valueText: root.isVertical ? String(root.backgroundGradientAngle) : (root.backgroundGradientAngle + "°")
+                    onHovered: root.backgroundControlHovered("angle", angleMetricControl)
+                    onExited: root.backgroundControlExited("angle")
+                    onWheeled: delta => root.backgroundControlWheel("angle", delta)
                 }
 
                 AspectRatioControl {
