@@ -50,7 +50,7 @@ Item {
         Transition {
             NumberAnimation {
                 properties: "opacity,scale"
-                duration: 150
+                duration: Theme.shortDuration
                 easing.type: Easing.OutQuad
             }
         }
@@ -253,12 +253,12 @@ Item {
         scale: root.selectedIndex === -2 ? 1.05 : 1.0
         Behavior on scale {
             NumberAnimation {
-                duration: 100
+                duration: Theme.shorterDuration
             }
         }
         Behavior on border.width {
             NumberAnimation {
-                duration: 100
+                duration: Theme.shorterDuration
             }
         }
 

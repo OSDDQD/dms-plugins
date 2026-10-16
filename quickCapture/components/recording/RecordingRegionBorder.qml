@@ -111,7 +111,7 @@ Variants {
 
             Behavior on opacity {
                 enabled: borderRect.isPaused
-                NumberAnimation { duration: 300; easing.type: Easing.OutQuad }
+                NumberAnimation { duration: Theme.mediumDuration; easing.type: Easing.OutQuad }
             }
 
             property real pulseValue: 0.15

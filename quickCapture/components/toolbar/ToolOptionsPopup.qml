@@ -203,8 +203,8 @@ Item {
 
     transitions: [
         Transition {
-            NumberAnimation { target: root; property: "opacity"; duration: 120; easing.type: Easing.OutQuad }
-            NumberAnimation { target: panel; property: "scale"; duration: 120; easing.type: Easing.OutQuad }
+            NumberAnimation { target: root; property: "opacity"; duration: Theme.shortDuration; easing.type: Easing.OutQuad }
+            NumberAnimation { target: panel; property: "scale"; duration: Theme.shortDuration; easing.type: Easing.OutQuad }
         }
     ]
 

@@ -35,7 +35,7 @@ Rectangle {
 
     transitions: [
         Transition {
-            NumberAnimation { properties: "opacity,scale"; duration: 120; easing.type: Easing.OutQuad }
+            NumberAnimation { properties: "opacity,scale"; duration: Theme.shortDuration; easing.type: Easing.OutQuad }
         }
     ]
 

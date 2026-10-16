@@ -234,7 +234,7 @@ Item {
                                         scale: cardHover.hovered ? 1.0 : 0.94
                                         Behavior on scale {
                                             NumberAnimation {
-                                                duration: 150
+                                                duration: Theme.shortDuration
                                                 easing.type: Easing.OutCubic
                                             }
                                         }

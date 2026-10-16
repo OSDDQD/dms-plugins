@@ -40,7 +40,7 @@ Column {
                     scale: hoverArea.containsMouse ? 1.1 : 1.0
                     Behavior on scale {
                         NumberAnimation {
-                            duration: 100
+                            duration: Theme.shorterDuration
                         }
                     }
 
@@ -81,7 +81,7 @@ Column {
             scale: customHover.containsMouse ? 1.1 : 1.0
             Behavior on scale {
                 NumberAnimation {
-                    duration: 100
+                    duration: Theme.shorterDuration
                 }
             }
 
