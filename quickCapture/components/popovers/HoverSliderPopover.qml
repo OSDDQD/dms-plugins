@@ -45,11 +45,18 @@ PopoverSurface {
         id: horizontalSlider
 
         DankSlider {
+            id: slider
             minimum: popoverRoot.minimum
             maximum: popoverRoot.maximum
-            value: popoverRoot.value
+            step: popoverRoot.stepSize
             showValue: false
             onSliderValueChanged: val => popoverRoot.userValueChanged(val)
+
+            Binding {
+                target: slider
+                property: "value"
+                value: popoverRoot.value
+            }
         }
     }
 
