@@ -15,7 +15,7 @@ Refer to [`docs/`](docs/index.md) for full references:
 - **Modern QML:** Use `pragma ComponentBehavior: Bound` where appropriate. Standard imports: `qs.Common`, `qs.Widgets`, `qs.Services`, `qs.Modules.Plugins`.
 - **Theme Tokens:** Always use `Theme.*` from `qs.Common` and `Theme.withAlpha()`. Never hardcode hex colors or pixel dimensions.
 - **Component Reuse:** Prefer built-in DMS primitives (`DankIcon`, `DankButton`, `DankActionButton`, `DankKeycap`, `DankDropdown`) and `ToastService`.
-- **Internationalization (i18n):** Wrap user-facing strings with `I18n.trFor("<pluginId>", "Text")`. Use `.arg(...)` for dynamic values. Do not edit translation JSONs manually.
+- **Internationalization (i18n):** Wrap user-facing strings with `I18n.trFor("<pluginId>", "Text")`. Use `.arg(...)` for dynamic values. See [Translation Guide](docs/translations.md) (Quick Capture via [POEditor](https://poeditor.com/projects/view?id=839330), other plugins manual).
 - **Process Safety:** Never concatenate strings in shell execution. Pass command arguments as discrete arrays: `command: ["yt-dlp", "--no-warnings", url]`. If shell syntax is required, use positional parameters: `command: ["sh", "-c", 'command "$1"', "sh", userInput]`.
 - **Component Sync:** When modifying `./shared` components, run `python3 scripts/sync_shared.py` to propagate changes, and revert accidental diffs in unrelated plugins.
 

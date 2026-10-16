@@ -49,3 +49,10 @@ Before committing changes, run the QML syntax check:
 qmllint <pluginName>/*.qml <pluginName>/shared/*.qml
 ```
 
+---
+
+## 5. Translations & Localization
+
+For managing translations, string extraction, and POEditor links, see the [Translation Guide](translations.md).
+
+

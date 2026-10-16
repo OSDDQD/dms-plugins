@@ -52,7 +52,10 @@ git clone https://github.com/hthienloc/dms-quick-capture ~/.config/DankMaterialS
 
 ## Translations
 
-Quick Capture supports native DMS 1.6+ sideload translations located in `translations/<locale>.json`. Contributions and improvements to translations are welcome!
+Quick Capture supports native DMS 1.6+ sideload translations located in `translations/<locale>.json`.
+
+Translations are crowdsourced and managed online via **POEditor**:  
+👉 **[Contribute translations on POEditor (Project #839330)](https://poeditor.com/projects/view?id=839330)**
 
 <!-- TRANSLATIONS_TABLE_START -->
 | Language | Locale | Progress | Coverage | Status | Contributors |

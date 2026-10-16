@@ -23,3 +23,9 @@ Welcome to the documentation for the `dms-plugins` ecosystem.
    - Local setup and symlinking.
    - Hot-reloading and testing via IPC.
    - Code validation (`qmllint`).
+
+5. **[Translation & Localization](translations.md)**
+   - Translation workflows (POEditor for Quick Capture, manual JSON for other plugins).
+   - Translation management scripts (`scripts/i18n.py`).
+   - QML internationalization conventions.
+
