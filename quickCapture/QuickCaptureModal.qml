@@ -59,6 +59,10 @@ Item {
     }
 
     function close() {
+        if (toolStateSaveTimer.running) {
+            toolStateSaveTimer.stop();
+            window.saveToolState();
+        }
         window.shouldBeVisible = false;
         if (window.floatingMode) {
             const wasVisible = floatingSurface.visible;
@@ -399,10 +403,11 @@ Item {
     }
 
     function resetSessionToolIntensities() {
+        const remembered = window.rememberedToolState("lastToolIntensities");
         const values = {};
         for (let i = 0; i < window.intensityTools.length; i++) {
             const tool = window.intensityTools[i];
-            values[tool] = window.configuredToolIntensity(tool);
+            values[tool] = remembered[tool] !== undefined ? window.clampToolIntensity(tool, remembered[tool]) : window.configuredToolIntensity(tool);
         }
         window.sessionToolIntensities = values;
     }
@@ -410,9 +415,58 @@ Item {
     function updateSessionToolIntensity(tool, value) {
         if (!window.isIntensityTool(tool))
             return;
+        const clamped = window.clampToolIntensity(tool, value);
+        if (window.sessionToolIntensities[tool] === clamped)
+            return;
         const nextValues = Object.assign({}, window.sessionToolIntensities);
-        nextValues[tool] = window.clampToolIntensity(tool, value);
+        nextValues[tool] = clamped;
         window.sessionToolIntensities = nextValues;
+        window.scheduleToolStateSave();
+    }
+
+    // Last used color and size per tool, carried over to the next capture
+    // when rememberToolSettings is on. Stored as JSON objects keyed by tool.
+    readonly property bool rememberToolSettings: window.pluginData.rememberToolSettings !== false
+    property bool toolStateRestoring: false
+    property string savedToolIntensitiesJson: ""
+    property string savedToolColorsJson: ""
+
+    function rememberedToolState(key) {
+        if (!window.rememberToolSettings)
+            return {};
+        try {
+            const parsed = JSON.parse(window.pluginData[key] || "{}");
+            return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+        } catch (e) {
+            console.warn("quickCapture: invalid " + key + ", ignoring");
+            return {};
+        }
+    }
+
+    function scheduleToolStateSave() {
+        if (window.rememberToolSettings && !window.toolStateRestoring)
+            toolStateSaveTimer.restart();
+    }
+
+    function saveToolState() {
+        if (!window.rememberToolSettings)
+            return;
+        const intensities = JSON.stringify(window.sessionToolIntensities);
+        if (intensities !== window.savedToolIntensitiesJson && intensities !== window.pluginData.lastToolIntensities) {
+            window.savedToolIntensitiesJson = intensities;
+            window.savePluginData("lastToolIntensities", intensities);
+        }
+        const colors = JSON.stringify(window.sessionToolColors);
+        if (colors !== window.savedToolColorsJson && colors !== window.pluginData.lastToolColors) {
+            window.savedToolColorsJson = colors;
+            window.savePluginData("lastToolColors", colors);
+        }
+    }
+
+    Timer {
+        id: toolStateSaveTimer
+        interval: 500
+        onTriggered: window.saveToolState()
     }
 
     function sessionToolIntensity(tool) {
@@ -477,10 +531,11 @@ Item {
     }
 
     function resetSessionToolColors() {
+        const remembered = window.rememberedToolState("lastToolColors");
         const values = {};
         for (let i = 0; i < window.colorTools.length; i++) {
             const tool = window.colorTools[i];
-            values[tool] = window.configuredToolColor(tool);
+            values[tool] = remembered[tool] !== undefined ? String(remembered[tool]) : window.configuredToolColor(tool);
         }
         window.sessionToolColors = values;
     }
@@ -488,9 +543,19 @@ Item {
     function updateSessionToolColor(tool, colorValue) {
         if (!window.isColorTool(tool))
             return;
+        const previous = window.sessionToolColors[tool];
+        // Re-applying the tool's own color on a tool switch must not turn a theme
+        // reference like "primary" into a fixed hex.
+        if (previous !== undefined && colorValue && Helpers.colorEquals(config.resolveColor(previous), colorValue, Qt))
+            return;
         const nextValues = Object.assign({}, window.sessionToolColors);
         nextValues[tool] = colorValue ? colorValue.toString() : "primary";
         window.sessionToolColors = nextValues;
+        window.scheduleToolStateSave();
+    }
+
+    function hasRememberedToolValue(key, tool) {
+        return window.rememberedToolState(key)[tool] !== undefined;
     }
 
     function sessionToolColor(tool) {
@@ -4030,8 +4095,8 @@ Item {
             if (t && t !== "none") {
                 startTool = t;
                 const rawColor = window.getPresetColor(presetIdx);
-                startColor = config.resolveColor(rawColor);
-                startThickness = window.getPresetThickness(presetIdx);
+                startColor = window.hasRememberedToolValue("lastToolColors", t) ? window.sessionToolColor(t) : config.resolveColor(rawColor);
+                startThickness = window.hasRememberedToolValue("lastToolIntensities", t) ? window.sessionToolIntensity(t) : window.getPresetThickness(presetIdx);
             } else {
                 startTool = config.pluginData.defaultTool || "pen";
                 startThickness = window.sessionToolIntensity(startTool);
@@ -4045,12 +4110,15 @@ Item {
 
         window.resetEditorSessionState();
 
+        // Applying the starting tool is not a user choice: keep it out of the remembered state.
+        window.toolStateRestoring = true;
         window.currentTool = startTool;
         window.toolbarVisible = window.configShowToolbar;
         window.applyToolIntensity(startTool, startThickness);
         window.updateSessionToolIntensity(startTool, startThickness);
         window.currentColor = startColor;
         window.updateSessionToolColor(startTool, startColor);
+        window.toolStateRestoring = false;
         window.recordPresetUsage({
             tool: startTool,
             color: startColor,

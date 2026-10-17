@@ -67,6 +67,7 @@ const values = {
     roundHighlighter: false,
     stampOuterRing: false,
     penAutoClose: true,
+    rememberToolSettings: true,
     backgroundAutoApply: false,
     backgroundDefaultMode: "solid",
     backgroundImageFolder: "~/Pictures/Wallpaper",

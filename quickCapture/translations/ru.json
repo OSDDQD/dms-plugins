@@ -344,6 +344,9 @@
   "Each command accepts action: %1 (open editor) or %2 (always-on-top window).": {
     "Each command accepts action: %1 (open editor) or %2 (always-on-top window).": ""
   },
+  "Each tool keeps the color and size you last used with it across captures. When off, every capture starts from the defaults below.": {
+    "Each tool keeps the color and size you last used with it across captures. When off, every capture starts from the defaults below.": "Каждый инструмент сохраняет последний выбранный цвет и размер между снимками. Если выключено, каждый снимок начинается со значений по умолчанию ниже."
+  },
   "Edge Spacing": {
     "Edge Spacing": "Отступ краёв"
   },
@@ -874,6 +877,9 @@
   },
   "Region HUD Scale": {
     "Region HUD Scale": ""
+  },
+  "Remember Last Color and Size": {
+    "Remember Last Color and Size": "Запоминать последний цвет и размер"
   },
   "Remote and folder from `rclone config`. The public link comes from `rclone link` (view-only, anyone with the link).": {
     "Remote and folder from `rclone config`. The public link comes from `rclone link` (view-only, anyone with the link).": "Remote и папка из `rclone config`. Публичная ссылка — от `rclone link` (только просмотр, для всех, у кого есть ссылка)."

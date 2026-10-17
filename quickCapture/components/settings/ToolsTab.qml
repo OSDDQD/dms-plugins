@@ -126,6 +126,15 @@ SettingsGroup {
             }
         }
 
+        Separator {}
+
+        ToggleSettingPlus {
+            settingKey: "rememberToolSettings"
+            label: I18n.trFor("quickCapture", "Remember Last Color and Size")
+            description: I18n.trFor("quickCapture", "Each tool keeps the color and size you last used with it across captures. When off, every capture starts from the defaults below.")
+            defaultValue: Defaults.values.rememberToolSettings
+        }
+
         Repeater {
             model: root.toolRows
 
