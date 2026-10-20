@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 import "../core/Constants.js" as Constants
 
@@ -29,7 +30,7 @@ Item {
         horizontalItemAlignment: Grid.AlignHCenter
         verticalItemAlignment: Grid.AlignVCenter
 
-        DankIcon {
+        DIcon {
             name: root.iconName
             size: root.iconSize
             color: Theme.surfaceText

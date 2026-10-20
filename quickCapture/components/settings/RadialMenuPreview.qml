@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 import "../core/Helpers.js" as Helpers
 
@@ -92,7 +93,7 @@ Item {
                     opacity: 0.6
                 }
 
-                DankIcon {
+                DIcon {
                     name: root.config.getToolIcon(slot.modelData.tool)
                     size: Theme.iconSizeSmall + 2
                     color: {
@@ -121,7 +122,7 @@ Item {
             anchors.centerIn: parent
             spacing: 1
 
-            DankIcon {
+            DIcon {
                 readonly property bool enabled: root.activePreset && root.activePreset.tool !== "none"
                 name: enabled ? root.config.getToolIcon(root.activePreset.tool) : "block"
                 size: Theme.iconSize

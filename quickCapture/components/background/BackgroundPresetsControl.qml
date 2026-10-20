@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 import "../core/Constants.js" as Constants
 
@@ -12,7 +13,7 @@ Item {
     width: Constants.btnSize
     height: Constants.btnSize
 
-    DankActionButton {
+    DActionButton {
         iconName: "bookmarks"
         buttonSize: Constants.btnSize
         iconSize: Constants.iconSize

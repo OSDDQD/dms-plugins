@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 
 Row {
@@ -41,7 +42,7 @@ Row {
             }
         }
 
-        DankIcon {
+        DIcon {
             anchors.centerIn: parent
             name: root.active ? root.iconOn : root.iconOff
             size: Theme.iconSize
@@ -54,7 +55,7 @@ Row {
             }
         }
 
-        DankRipple {
+        DRipple {
             id: ripple
             anchors.fill: parent
             rippleColor: Theme.primary
@@ -72,7 +73,7 @@ Row {
         }
     }
 
-    DankDropdown {
+    DDropdown {
         width: parent.width - toggleBox.width - Theme.spacingS
         height: 40
         compactMode: true

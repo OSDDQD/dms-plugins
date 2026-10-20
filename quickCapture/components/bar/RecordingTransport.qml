@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 
 Grid {
@@ -23,7 +24,7 @@ Grid {
     horizontalItemAlignment: Grid.AlignHCenter
     verticalItemAlignment: Grid.AlignVCenter
 
-    DankActionButton {
+    DActionButton {
         visible: root.pauseSupported
         width: visible ? root.buttonSize : 0
         implicitWidth: visible ? root.buttonSize : 0
@@ -39,7 +40,7 @@ Grid {
         }
     }
 
-    DankActionButton {
+    DActionButton {
         iconName: "stop"
         buttonSize: root.buttonSize
         iconSize: root.iconSize
@@ -52,7 +53,7 @@ Grid {
         }
     }
 
-    DankActionButton {
+    DActionButton {
         visible: root.showCancel
         width: visible ? root.buttonSize : 0
         implicitWidth: visible ? root.buttonSize : 0

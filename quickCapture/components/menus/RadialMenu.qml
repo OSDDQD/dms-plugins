@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 import "../core/Helpers.js" as Helpers
 import "../.."
@@ -209,7 +210,7 @@ Item {
                     opacity: 0.6
                 }
 
-                DankIcon {
+                DIcon {
                     name: {
                         return config.getToolIcon(modelData.tool);
                     }
@@ -266,7 +267,7 @@ Item {
             anchors.centerIn: parent
             spacing: 2
 
-            DankIcon {
+            DIcon {
                 name: {
                     if (root.selectedIndex === -2)
                         return "near_me";

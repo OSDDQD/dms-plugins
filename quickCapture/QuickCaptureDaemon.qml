@@ -470,7 +470,7 @@ PluginComponent {
         }
     }
 
-    DankModal {
+    DModal {
         id: historyModal
         shouldBeVisible: false
         positioning: "center"

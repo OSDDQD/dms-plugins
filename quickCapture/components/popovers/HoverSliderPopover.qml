@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 import "../core/Constants.js" as Constants
 import "../core/Helpers.js" as Helpers
@@ -44,7 +45,7 @@ PopoverSurface {
     Component {
         id: horizontalSlider
 
-        DankSlider {
+        DSlider {
             id: slider
             minimum: popoverRoot.minimum
             maximum: popoverRoot.maximum

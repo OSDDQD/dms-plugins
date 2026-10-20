@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 
 Rectangle {
@@ -27,7 +28,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         spacing: Theme.spacingS
 
-        DankIcon {
+        DIcon {
             name: root.iconName
             size: Theme.iconSizeSmall
             color: root.accent

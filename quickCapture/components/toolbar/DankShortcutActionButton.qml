@@ -1,8 +1,9 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 
-DankActionButton {
+DActionButton {
     id: button
 
     property string shortcutText: ""

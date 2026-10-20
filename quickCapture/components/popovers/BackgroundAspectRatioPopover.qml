@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 import "../core/Constants.js" as Constants
 
@@ -105,7 +106,7 @@ PopoverSurface {
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
-                DankSlider {
+                DSlider {
                     id: slider
                     minimum: popoverRoot._sliderMin
                     maximum: popoverRoot._sliderMax

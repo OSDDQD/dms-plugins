@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 import "../core/Constants.js" as Constants
 
@@ -26,7 +27,7 @@ Grid {
 
     Repeater {
         model: controlRoot.modes
-        delegate: DankActionButton {
+        delegate: DActionButton {
             id: modeButton
             iconName: modelData.icon
             buttonSize: Constants.btnSize

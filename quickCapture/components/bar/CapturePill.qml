@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 
 Item {
@@ -41,7 +42,7 @@ Item {
             }
         }
 
-        DankIcon {
+        DIcon {
             visible: !root.isRecording
             width: visible ? Theme.iconSizeSmall : 0
             implicitWidth: visible ? Theme.iconSizeSmall : 0

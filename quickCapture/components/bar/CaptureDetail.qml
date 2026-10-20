@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Common
 import qs.Services
+import qs.DCommon.Widgets
 import qs.Widgets
 
 Item {
@@ -45,7 +46,7 @@ Item {
             width: parent.width - Theme.spacingS * 2
             spacing: Theme.spacingXS
 
-            DankIcon {
+            DIcon {
                 name: tile.modelData.icon
                 size: Theme.iconSize
                 color: tileArea.containsMouse ? Theme.primary : Theme.surfaceText
@@ -64,7 +65,7 @@ Item {
             }
         }
 
-        DankRipple {
+        DRipple {
             id: tileRipple
             anchors.fill: parent
             rippleColor: Theme.primary
@@ -112,7 +113,7 @@ Item {
                         anchors.centerIn: parent
                         spacing: Theme.spacingXS
 
-                        DankIcon {
+                        DIcon {
                             name: "photo_camera"
                             size: Theme.iconSizeSmall
                             color: !root.videoMode ? Theme.onPrimary : Theme.surfaceVariantText
@@ -148,7 +149,7 @@ Item {
                         anchors.centerIn: parent
                         spacing: Theme.spacingXS
 
-                        DankIcon {
+                        DIcon {
                             name: "videocam"
                             size: Theme.iconSizeSmall
                             color: root.videoMode ? (root.isRecording ? (Theme.onError ? Theme.onError : Theme.background) : Theme.onPrimary) : Theme.surfaceVariantText
@@ -328,7 +329,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: Theme.spacingS
 
-                    DankIcon {
+                    DIcon {
                         name: "tune"
                         size: Theme.iconSizeSmall
                         color: Theme.surfaceVariantText
@@ -349,7 +350,7 @@ Item {
                     }
                 }
 
-                DankActionButton {
+                DActionButton {
                     anchors.right: parent.right
                     anchors.rightMargin: Theme.spacingS
                     anchors.verticalCenter: parent.verticalCenter
@@ -376,7 +377,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: Theme.spacingS
 
-                DankButton {
+                DButton {
                     buttonHeight: 32
                     iconName: "history"
                     text: I18n.trFor("quickCapture", "History")
@@ -388,7 +389,7 @@ Item {
                     }
                 }
 
-                DankButton {
+                DButton {
                     buttonHeight: 32
                     iconName: "folder"
                     text: I18n.trFor("quickCapture", "Folder")
@@ -406,7 +407,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: Theme.spacingXS
 
-                DankActionButton {
+                DActionButton {
                     readonly property bool hiding: root.daemon ? root.daemon.hideControlCenter : true
                     iconName: hiding ? "visibility_off" : "visibility"
                     buttonSize: 32
@@ -420,7 +421,7 @@ Item {
                     }
                 }
 
-                DankActionButton {
+                DActionButton {
                     iconName: "settings"
                     buttonSize: 32
                     iconSize: Theme.iconSizeSmall

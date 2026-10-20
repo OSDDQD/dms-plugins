@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 
 Popup {
@@ -158,7 +159,7 @@ Popup {
                             border.color: modelData.active ? Theme.primary : "transparent"
                             border.width: 1
 
-                            DankIcon {
+                            DIcon {
                                 anchors.centerIn: parent
                                 name: modelData.icon
                                 size: 18
@@ -186,7 +187,7 @@ Popup {
                     }
                 }
 
-                DankButton {
+                DButton {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     text: window && window.editingStroke ? I18n.trFor("quickCapture", "Save") : I18n.trFor("quickCapture", "Add")

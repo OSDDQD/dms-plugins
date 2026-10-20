@@ -3,6 +3,7 @@ import Quickshell
 import qs.Common
 import qs.Modules.Plugins
 import qs.Services
+import qs.DCommon.Widgets
 import qs.Widgets
 import "../core/Defaults.js" as Defaults
 
@@ -102,7 +103,7 @@ PopoutComponent {
             anchors.verticalCenter: parent.verticalCenter
             spacing: Theme.spacingXS
 
-            DankIcon {
+            DIcon {
                 name: infoRow.icon
                 size: 14
                 color: infoRow.accent ? Theme.primary : Theme.surfaceVariantText
@@ -134,7 +135,7 @@ PopoutComponent {
         Row {
             spacing: Theme.spacingXS
 
-            DankActionButton {
+            DActionButton {
                 iconName: "open_in_new"
                 buttonSize: 32
                 iconSize: Theme.iconSize - 4
@@ -143,7 +144,7 @@ PopoutComponent {
                 onClicked: root.daemon?.openFolder(root.videoMode ? "video" : "photo")
             }
 
-            DankActionButton {
+            DActionButton {
                 iconName: "history"
                 buttonSize: 32
                 iconSize: Theme.iconSize - 4
@@ -230,7 +231,7 @@ PopoutComponent {
                             }
                         }
 
-                        DankIcon {
+                        DIcon {
                             anchors.centerIn: parent
                             name: segment.modelData.icon
                             size: Theme.iconSizeSmall
@@ -243,7 +244,7 @@ PopoutComponent {
                             }
                         }
 
-                        DankRipple {
+                        DRipple {
                             id: segmentRipple
                             anchors.fill: parent
                             rippleColor: Theme.primary
@@ -320,7 +321,7 @@ PopoutComponent {
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: Theme.spacingS
 
-                DankIcon {
+                DIcon {
                     name: "display_settings"
                     size: Theme.iconSizeSmall
                     anchors.verticalCenter: parent.verticalCenter
@@ -335,7 +336,7 @@ PopoutComponent {
                 }
             }
 
-            DankIcon {
+            DIcon {
                 anchors.right: parent.right
                 anchors.rightMargin: Theme.spacingS
                 anchors.verticalCenter: parent.verticalCenter
@@ -344,7 +345,7 @@ PopoutComponent {
                 color: Theme.surfaceText
             }
 
-            DankRipple {
+            DRipple {
                 id: outputRipple
                 anchors.fill: parent
                 rippleColor: Theme.primary

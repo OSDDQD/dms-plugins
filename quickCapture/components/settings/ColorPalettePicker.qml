@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 import "../core/Helpers.js" as Helpers
 
@@ -44,7 +45,7 @@ Column {
                         }
                     }
 
-                    DankIcon {
+                    DIcon {
                         anchors.centerIn: parent
                         name: "check"
                         size: 14
@@ -85,7 +86,7 @@ Column {
                 }
             }
 
-            DankIcon {
+            DIcon {
                 anchors.centerIn: parent
                 name: "palette"
                 size: 14

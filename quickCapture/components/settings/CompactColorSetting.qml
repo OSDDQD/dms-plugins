@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Common
 import qs.Services
+import qs.DCommon.Widgets
 import qs.Widgets
 
 Item {
@@ -136,7 +137,7 @@ Item {
                     anchors.rightMargin: -2
                     visible: root.isDirty && !root.readOnly
 
-                    DankIcon {
+                    DIcon {
                         name: "restart_alt"
                         size: 10
                         color: Theme.primary
@@ -175,7 +176,7 @@ Item {
         }
     }
 
-    DankTooltipV2 {
+    DTooltipV2 {
         id: tooltip
     }
 }

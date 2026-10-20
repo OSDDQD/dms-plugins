@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 
 Popup {
@@ -147,7 +148,7 @@ Popup {
                 width: parent.width
                 height: 28
 
-                DankButton {
+                DButton {
                     text: I18n.trFor("quickCapture", "Cancel")
                     backgroundColor: "transparent"
                     textColor: Theme.surfaceTextMedium

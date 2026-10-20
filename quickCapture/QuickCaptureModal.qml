@@ -88,7 +88,7 @@ Item {
         }
     }
 
-    DankModal {
+    DModal {
         id: modalSurface
         shouldBeVisible: window.shouldBeVisible && !window.floatingMode
         shouldHaveFocus: window.shouldHaveFocus && !window.floatingMode
@@ -108,7 +108,7 @@ Item {
         onBackgroundClicked: window.backgroundClicked()
     }
 
-    DankFloatingWindow {
+    DFloatingWindow {
         id: floatingSurface
         title: I18n.trFor("quickCapture", "Quick Capture")
         objectName: "quickCaptureEditor"

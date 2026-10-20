@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 
 Rectangle {
@@ -42,7 +43,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         spacing: Theme.spacingS
 
-        DankIcon {
+        DIcon {
             name: root.icon
             size: Theme.iconSizeSmall
             anchors.verticalCenter: parent.verticalCenter
@@ -58,7 +59,7 @@ Rectangle {
         }
     }
 
-    DankRipple {
+    DRipple {
         id: ripple
         anchors.fill: parent
         rippleColor: Theme.primary
@@ -66,7 +67,7 @@ Rectangle {
         clip: true
     }
 
-    DankIcon {
+    DIcon {
         visible: root.showPin
         anchors.right: parent.right
         anchors.rightMargin: Theme.spacingS

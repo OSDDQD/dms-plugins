@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Widgets
 import "../core/Constants.js" as Constants
 
@@ -68,7 +69,7 @@ PopoverSurface {
                     border.color: popoverRoot.editMode ? Theme.error : "transparent"
                     border.width: 1
 
-                    DankIcon {
+                    DIcon {
                         name: "edit"
                         size: 13
                         color: popoverRoot.editMode ? Theme.error : Theme.surfaceText
@@ -99,7 +100,7 @@ PopoverSurface {
                         anchors.centerIn: parent
                         spacing: 2
 
-                        DankIcon {
+                        DIcon {
                             name: "add"
                             size: 12
                             color: Theme.primary
@@ -190,7 +191,7 @@ PopoverSurface {
                                     border.width: 1
                                     z: 0
 
-                                    DankIcon {
+                                    DIcon {
                                         name: "close"
                                         size: 10
                                         color: Theme.withAlpha(Theme.surfaceText, 0.25)
@@ -261,7 +262,7 @@ PopoverSurface {
                                     border.color: Theme.primary
                                     border.width: 1
 
-                                    DankIcon {
+                                    DIcon {
                                         name: "refresh"
                                         size: 14
                                         color: updateMouse.containsMouse ? "#ffffff" : Theme.primary
@@ -288,7 +289,7 @@ PopoverSurface {
                                     border.color: Theme.error
                                     border.width: 1
 
-                                    DankIcon {
+                                    DIcon {
                                         name: "delete"
                                         size: 14
                                         color: delMouse.containsMouse ? "#ffffff" : Theme.error
