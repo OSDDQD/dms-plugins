@@ -3,7 +3,6 @@ import qs.Common
 import qs.Modules.Plugins
 import qs.Services
 import qs.DCommon.Widgets
-import qs.Widgets
 
 PluginSettings {
     id: root

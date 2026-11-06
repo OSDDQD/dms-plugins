@@ -2,8 +2,8 @@ import QtQuick
 import Quickshell.Io
 import qs.Common
 import qs.Services
+import "../core" as Core
 import "../core/Helpers.js" as Helpers
-import "../core/Defaults.js" as Defaults
 
 Item {
     id: root
@@ -50,7 +50,7 @@ Item {
     ]
 
     function setting(key) {
-        return Defaults.get(root.pluginData, key);
+        return Core.CapturePaths.setting(root.pluginData, key);
     }
 
     readonly property string videoFormat: setting("recordingFormat")
@@ -180,7 +180,7 @@ Item {
         id: safetyTimer
         interval: 20000
         onTriggered: {
-            if (root.recordingState !== "starting")
+            if (root.recordingState !== "starting" && root.recordingState !== "stopping")
                 return;
             root.cancelRecording();
             root.sendNotification(I18n.trFor("quickCapture", "Screen recording timed out or was cancelled."), true);
@@ -221,12 +221,24 @@ Item {
                 return;
             }
 
+            // User cancelled portal/window selection dialog (GSR exit code 60)
+            const isPortalMode = prevMode === "portal" || prevMode === "window";
+            if (isPortalMode && exitCode === 60) {
+                if (finishedPath)
+                    Proc.runCommand("quickCapture.cleanupRecording", ["rm", "-f", "--", finishedPath]);
+                if (gifTarget)
+                    Proc.runCommand("quickCapture.cleanupGif", ["rm", "-f", "--", gifTarget]);
+                root.targetGifPath = "";
+                return;
+            }
+
             if (finishedOk) {
                 root.finalizeRecording(finishedPath, gifTarget);
                 return;
             }
 
-            if (wasStarting && prevBin === "gpu-screen-recorder" && root.recordingBackend === "auto" && root.hasWfRecorder) {
+            // Fallback to wf-recorder is only possible for region and fullscreen, not portal/window
+            if (wasStarting && prevBin === "gpu-screen-recorder" && root.recordingBackend === "auto" && root.hasWfRecorder && !isPortalMode) {
                 root.sendNotification(I18n.trFor("quickCapture", "GPU encoder failed. Retrying with %1...").arg("wf-recorder (CPU)"), false);
                 root.activeRecorderBin = "wf-recorder";
                 root.isFlatpakActive = false;
@@ -370,19 +382,59 @@ Item {
         }
         root.isPaused = !root.isPaused;
         root.recordingState = root.isPaused ? "paused" : "recording";
-        if (recorderProcess.running) {
-            recorderProcess.signal(12); // SIGUSR2
+        signalRecorder(12, success => {
+            if (!root.isRecording)
+                return;
+            if (!success) {
+                root.isPaused = !root.isPaused;
+                root.recordingState = root.isPaused ? "paused" : "recording";
+            }
+        });
+    }
+
+    // bwrap doesn't forward signals into the Flatpak sandbox, so target the sandboxed recorder directly
+    function signalRecorder(sig, callback) {
+        if (!recorderProcess.running) {
+            if (callback)
+                callback(false);
+            return;
         }
+        if (!root.isFlatpakActive) {
+            recorderProcess.signal(sig);
+            if (callback)
+                callback(true);
+            return;
+        }
+        const escapedPath = Helpers.escapeRegex(root.outputPath);
+        Proc.runCommand("quickCapture.signalFlatpakRecorder", ["pkill", "-" + sig, "-f", "--", "^gpu-screen-recorder .*-o " + escapedPath + "(\\s|$)"], (stdout, exitCode) => {
+            const success = exitCode === 0;
+            if (!success) {
+                console.warn("quickCapture: failed to signal Flatpak recorder via pkill (exit " + exitCode + ")");
+            }
+            if (callback) {
+                callback(success);
+            }
+        });
     }
 
     function stopRecording() {
         if (!root.isRecording && root.recordingState !== "starting")
             return;
         root.recordingState = "stopping";
-        if (recorderProcess.running) {
-            recorderProcess.signal(2); // SIGINT
-        }
         safetyTimer.restart();
+        signalRecorder(2, success => {
+            if (root.recordingState !== "stopping")
+                return;
+            if (!success) {
+                safetyTimer.stop();
+                if (root.isFlatpakActive && recorderProcess.running) {
+                    console.warn("quickCapture: Flatpak pkill failed; falling back to direct process signal");
+                    recorderProcess.signal(2);
+                } else {
+                    root.recordingState = root.isPaused ? "paused" : "recording";
+                }
+            }
+        });
     }
 
     function cancelRecording() {
@@ -401,9 +453,11 @@ Item {
             Proc.runCommand("quickCapture.cleanupGif", ["rm", "-f", "--", root.targetGifPath]);
             root.targetGifPath = "";
         }
-        if (recorderProcess.running) {
-            recorderProcess.signal(9); // SIGKILL
-        }
+        signalRecorder(9, success => {
+            if (!success && root.isFlatpakActive && recorderProcess.running) {
+                recorderProcess.signal(9);
+            }
+        });
     }
 
     function mergeAudio(videoPath, callback) {

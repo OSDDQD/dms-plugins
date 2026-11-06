@@ -1,7 +1,7 @@
 import QtQuick
 import qs.Common
 import qs.DCommon.Widgets
-import qs.Widgets
+import "../../shared"
 
 Row {
     id: root
@@ -22,43 +22,48 @@ Row {
 
     Rectangle {
         id: toggleBox
-        width: 40
+        width: toggleArea.pressed ? 44 : 40
         height: 40
-        radius: Theme.cornerRadius
-        color: root.active ? Theme.withAlpha(Theme.primary, 0.15) : (toggleArea.containsMouse ? Theme.surfaceContainerHighest : Theme.surfaceContainerLow)
-        border.color: root.active ? Theme.primary : Theme.outlineVariant
-        border.width: 1
+        radius: toggleArea.pressed
+            ? M3E.pressRadiusXS
+            : (root.active || toggleArea.containsMouse ? (Theme.cornerRadiusM ?? 12) : height / 2)
+        color: root.active
+            ? Theme.primary
+            : (toggleArea.containsMouse ? Theme.secondaryContainer : Theme.surfaceContainerHighest)
 
-        Behavior on color {
-            ColorAnimation {
-                duration: Theme.shorterDuration
-                easing.type: Theme.standardEasing
+        Behavior on width {
+            NumberAnimation {
+                duration: M3E.spatialFastMs
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: M3E.curveFastSpatial
             }
         }
-        Behavior on border.color {
+        Behavior on radius {
+            NumberAnimation {
+                duration: M3E.spatialFastMs
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: M3E.curveFastSpatial
+            }
+        }
+        Behavior on color {
             ColorAnimation {
-                duration: Theme.shorterDuration
-                easing.type: Theme.standardEasing
+                duration: M3E.effectsFastMs
             }
         }
 
         DIcon {
             anchors.centerIn: parent
             name: root.active ? root.iconOn : root.iconOff
-            size: Theme.iconSize
-            color: root.active ? Theme.primary : Theme.surfaceVariantText
-            Behavior on color {
-                ColorAnimation {
-                    duration: Theme.shorterDuration
-                    easing.type: Theme.standardEasing
-                }
-            }
+            size: Theme.iconSize - 2
+            color: root.active
+                ? Theme.onPrimary
+                : (toggleArea.containsMouse ? Theme.onSecondaryContainer : Theme.surfaceVariantText)
         }
 
         DRipple {
             id: ripple
             anchors.fill: parent
-            rippleColor: Theme.primary
+            rippleColor: root.active ? Theme.onPrimary : Theme.primary
             cornerRadius: toggleBox.radius
             clip: true
         }

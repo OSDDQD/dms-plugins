@@ -6,6 +6,7 @@ import qs.Modules.Plugins
 import qs.Services
 import qs.Modals.Common
 import qs.Modals.FileBrowser
+import "./components/bar"
 import "./components/core"
 import "./components/floating"
 import "./components/history"
@@ -22,9 +23,21 @@ PluginComponent {
     readonly property alias actions: captureActions
     readonly property bool isRecording: recorder.isRecording
     readonly property bool isAnnotating: modal.shouldBeVisible
+    readonly property bool isMenuOpen: menuModal.shouldBeVisible
     readonly property var allowedModes: ["region", "window", "full", "output", "all", "last", "scroll"]
     readonly property int captureTimeoutMs: 60000
     readonly property int scrollCaptureTimeoutMs: 120000
+
+    readonly property bool hasBarWidget: {
+        const bars = SettingsData.barConfigs || [];
+        const sections = ["leftWidgets", "centerWidgets", "rightWidgets"];
+        return bars.some(bar => (bar.enabled ?? true) && sections.some(sec => (bar[sec] || []).some(w => typeof w === "string" ? w === "quickCapture" : (w && w.id === "quickCapture" && w.enabled !== false))));
+    }
+    readonly property bool hasCcWidget: {
+        const ccWidgets = SettingsData.controlCenterWidgets || [];
+        return ccWidgets.some(w => w && w.id === "quickCapture" && w.enabled !== false);
+    }
+    readonly property bool hasSurfaceWidget: hasBarWidget || hasCcWidget
 
     property string widgetMode: "photo"
     property bool isCapturing: false
@@ -36,7 +49,6 @@ PluginComponent {
     property string pendingCaptureAction: "edit"
     property string pendingCaptureMode: ""
     property string pendingOutputName: ""
-    property bool waitingForControlCenterClose: false
     property bool pendingFromControlCenter: false
 
     function savePluginData(key, value) {
@@ -79,15 +91,37 @@ PluginComponent {
         }
     }
 
+    // Closing a popout destroys its menu content. Keep deferred actions in
+    // the daemon's context so they do not reference a destroyed menu item.
+    function closeMenuWidget(widget) {
+        if (typeof widget.closePopoutImmediately === "function")
+            widget.closePopoutImmediately();
+        else
+            widget.closePopout();
+    }
+
+    function captureFromMenu(mode, action, outputName, widget) {
+        closeMenuWidget(widget);
+        Qt.callLater(() => root.capture(mode, action, outputName, false));
+    }
+
+    function recordFromMenu(mode, widget) {
+        closeMenuWidget(widget);
+        Qt.callLater(() => root.record(mode, "", false));
+    }
+
     function record(mode, geometry, fromControlCenter) {
-        if (fromControlCenter && root.hideControlCenter)
+        if (fromControlCenter && root.hideControlCenter) {
             closeControlCenter();
+            Qt.callLater(() => recorder.startRecording(mode || "screen", geometry || ""));
+            return;
+        }
         recorder.startRecording(mode || "screen", geometry || "");
     }
 
     function openFolder(kind) {
         const key = kind === "video" ? "recordingDirectory" : "saveDirectory";
-        Proc.runCommand("quickCapture.openFolder", ["xdg-open", Paths.expandTilde(String(Defaults.get(pluginData, key)))]);
+        Proc.runCommand("quickCapture.openFolder", ["xdg-open", Paths.expandTilde(String(CapturePaths.setting(pluginData, key)))]);
     }
 
     function toggleHideControlCenter() {
@@ -95,7 +129,13 @@ PluginComponent {
     }
 
     function closeControlCenter() {
-        PopoutService.closeControlCenter();
+        PopoutService.closeIslandActivity("controlcenter");
+        const cc = PopoutService.controlCenterPopout;
+        if (cc && typeof cc.instantClose === "function") {
+            cc.instantClose();
+        } else {
+            PopoutService.closeControlCenter();
+        }
     }
 
     function capturePath() {
@@ -138,25 +178,15 @@ PluginComponent {
         root.pendingOutputName = outputName || "";
         root.pendingFromControlCenter = !!fromControlCenter;
 
-        if (!fromControlCenter || !root.hideControlCenter) {
-            startActualCapture();
+        if (fromControlCenter && root.hideControlCenter) {
+            closeControlCenter();
+            Qt.callLater(startActualCapture);
             return;
         }
-        closeControlCenter();
-        root.waitingForControlCenterClose = true;
-        captureDelayTimer.start();
-    }
-
-    function startCaptureAfterControlCenterClose() {
-        if (!root.waitingForControlCenterClose)
-            return;
-        root.waitingForControlCenterClose = false;
-        captureDelayTimer.stop();
         startActualCapture();
     }
 
     function startActualCapture() {
-        root.waitingForControlCenterClose = false;
         const mode = root.pendingCaptureMode;
         const action = root.pendingCaptureAction;
         const timeout = mode === "scroll" ? root.scrollCaptureTimeoutMs : root.captureTimeoutMs;
@@ -334,8 +364,46 @@ PluginComponent {
         historyModal.open();
     }
 
+    function openMenu() {
+        if (root.isRecording && root.widgetMode !== "video")
+            root.widgetMode = "video";
+        menuModal.targetScreen = CompositorService.getFocusedScreen() ?? Quickshell.screens[0] ?? null;
+        menuModal.shouldBeVisible = true;
+        menuModal.open();
+    }
+
+    function closeMenu() {
+        if (menuModal && typeof menuModal.instantClose === "function") {
+            menuModal.instantClose();
+        } else {
+            menuModal.close();
+        }
+    }
+
+    function toggleMenu() {
+        if (menuModal.shouldBeVisible) {
+            closeMenu();
+            return "CLOSED";
+        }
+        openMenu();
+        return "OPENED";
+    }
+
     IpcHandler {
         target: "quickCapture"
+
+        function open(): string {
+            root.openMenu();
+            return "SUCCESS";
+        }
+
+        function toggle(): string {
+            return root.toggleMenu();
+        }
+
+        function menu(): string {
+            return root.toggleMenu();
+        }
 
         function screenshot(mode: string, action: string): string {
             root.triggerCapture(mode, action, "", false);
@@ -359,6 +427,7 @@ PluginComponent {
 
         function close(): string {
             modal.close();
+            menuModal.close();
             return "SUCCESS";
         }
 
@@ -419,21 +488,36 @@ PluginComponent {
         }
     }
 
-    Timer {
-        id: captureDelayTimer
-        interval: Math.max(50, Theme.popoutAnimationDuration + 50)
-        onTriggered: {
-            if (root.waitingForControlCenterClose)
-                root.startCaptureAfterControlCenterClose();
-            else
-                root.startActualCapture();
-        }
+    CaptureConfig {
+        id: daemonConfig
+        pluginData: root.pluginData
     }
 
-    Connections {
-        target: PopoutService.controlCenterPopout
-        function onPopoutClosed() {
-            root.startCaptureAfterControlCenterClose();
+    QtObject {
+        id: menuWidgetAdapter
+
+        readonly property var daemon: root
+        readonly property var recorder: root.recordingController
+        readonly property var config: daemonConfig
+        readonly property bool isRecording: root.isRecording
+        readonly property bool isPaused: recorder.isPaused
+        readonly property string widgetMode: root.widgetMode
+        readonly property var pluginData: root.pluginData
+        readonly property bool blinkRecordDot: Defaults.get(root.pluginData, "blinkRecordDot")
+        readonly property string durationText: recorder.formatDuration(recorder.recordingSeconds)
+        readonly property real popoutWidth: 260
+
+        function closePopout() {
+            root.closeMenu();
+        }
+
+        function runAfterPopoutClosed(action) {
+            root.closeMenu();
+            Qt.callLater(action);
+        }
+
+        function setWidgetMode(mode) {
+            root.widgetMode = mode;
         }
     }
 
@@ -494,6 +578,26 @@ PluginComponent {
         }
     }
 
+    DModal {
+        id: menuModal
+        shouldBeVisible: false
+        positioning: "center"
+        enableShadow: true
+        useOverlayLayer: true
+        closeOnEscapeKey: true
+        closeOnBackgroundClick: true
+        onBackgroundClicked: close()
+
+        modalWidth: 432 + Theme.spacingM * 2
+        modalHeight: 304 + Theme.spacingM * 2
+
+        content: Component {
+            CaptureLauncherModal {
+                widget: menuWidgetAdapter
+            }
+        }
+    }
+
     RecordingController {
         id: recorder
         daemon: root
@@ -501,5 +605,9 @@ PluginComponent {
 
     RecordingRegionBorder {
         recordingController: recorder
+    }
+
+    FloatingRecordingPill {
+        daemon: root
     }
 }

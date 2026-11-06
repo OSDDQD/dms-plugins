@@ -17,7 +17,7 @@ If a requirement is missing, the cat shows a warning badge with setup instructio
 
 ## Install
 
-Use the DMS CLI:
+Use the Dux Shell CLI (`dms`):
 ```bash
 dms plugins install bongoCat
 ```
@@ -36,6 +36,12 @@ git clone https://github.com/hthienloc/dms-bongo-cat ~/.config/DankMaterialShell
 - **Mouse interaction (optional)** - Paws react to clicks and scrolling (enable in settings).
 - **Typing metrics (optional)** - Live WPM and accuracy tracking with a privacy-first approach.
 - **Key sounds (optional)** - Soft click as you type, with adjustable volume.
+
+## Pixel Skins
+
+Pixel skins share the original 32x25 sprite silhouette and pose layout. See
+[the pixel skin authoring guide](assets/skins/README.md) for the pixel-coordinate
+map, palette roles, and export requirements.
 
 ## Usage
 
@@ -57,6 +63,7 @@ Select a specific keyboard in settings to filter input. If a non-keyboard device
 ## Credits
 
 - **[@StrayRogue](https://x.com/StrayRogue)** — Creator of the original Bongo Cat artwork used by the bongocat widget
+- **[StrawberryMatchaArt](https://www.etsy.com/shop/StrawberryMatchaArt)** — Creator of the Pixel Doodle Bongo Cat artwork
 
 
 ## License

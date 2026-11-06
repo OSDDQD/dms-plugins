@@ -1,10 +1,9 @@
 import QtQuick
 import QtQuick.Controls
 import Quickshell
-import Quickshell.Io
 import Quickshell.X11
 import qs.Common
-import qs.Widgets
+import qs.DCommon.Widgets
 import qs.Services
 import qs.Modules.Plugins
 import "./shared"
@@ -17,6 +16,15 @@ PluginComponent {
     pluginService: PluginService
 
     readonly property bool showHints: pluginData.showHints ?? true
+
+    readonly property bool isDock: root.surfaceContext?.kind === "dock"
+    readonly property int effectiveIconSize: isDock ? Math.max(root.iconSize, Math.round(root.widgetThickness * 0.65)) : (root.iconSize > 0 ? Math.max(root.iconSize, 24) : 24)
+    readonly property int effectiveTextSize: root.textSize > 0 ? root.textSize : Theme.fontSizeSmall
+
+    pillRightClickAction: () => {
+        root.forceSleep = !root.forceSleep;
+        if (root.forceSleep) root.isWaiting = true;
+    }
 
 
     property int catState: 0
@@ -34,82 +42,19 @@ PluginComponent {
 
     // Surface silent input-monitor failures (missing CLI tool / missing
     // input group) instead of leaving the cat motionless without a hint.
-    property bool inputToolMissing: false
-    property bool notInInputGroup: false
-    readonly property bool inputBroken: inputToolMissing || notInInputGroup
-    readonly property string requiredTool: selectedDevicePath === "all" ? "libinput" : "evtest"
-
-    onRequiredToolChanged: {
-        toolCheck.running = false;
-        toolCheck.running = true;
-        clearMouseState();
-        refreshMouseToolCheck();
-    }
-
-    Process {
-        id: toolCheck
-        command: ["sh", "-c", "command -v " + root.requiredTool + " >/dev/null 2>&1"]
-        running: true
-        onExited: (exitCode, exitStatus) => {
-            root.inputToolMissing = (exitCode !== 0);
-        }
-    }
-
-    // When a specific keyboard is selected, its evtest stream contains no
-    // mouse events — those still come from libinput.
+    readonly property bool inputToolMissing: inputListener.inputToolMissing
+    readonly property bool notInInputGroup: inputListener.notInInputGroup
+    readonly property bool inputBroken: inputListener.inputBroken
+    readonly property string requiredTool: inputListener.requiredTool
     readonly property bool mouseBroken: mouseEnabled && selectedDevicePath !== "all" && mouseToolMissing
-    property bool mouseToolMissing: false
+    readonly property bool mouseToolMissing: inputListener.mouseToolMissing
 
     onMouseEnabledChanged: {
         clearMouseState();
-        refreshMouseToolCheck();
     }
 
-    function refreshMouseToolCheck() {
-        if (mouseEnabled && selectedDevicePath !== "all") {
-            mouseToolCheck.running = false;
-            mouseToolCheck.running = true;
-        }
-    }
-
-    Process {
-        id: mouseToolCheck
-        command: ["sh", "-c", "command -v libinput >/dev/null 2>&1"]
-        running: true
-        onExited: (exitCode, exitStatus) => {
-            root.mouseToolMissing = (exitCode !== 0);
-        }
-    }
-
-    Process {
-        id: mouseProc
-        command: ["libinput", "debug-events"]
-        running: root.mouseEnabled && root.selectedDevicePath !== "all" && !root.mouseToolMissing
-
-        stdout: SplitParser {
-            splitMarker: "\n"
-            onRead: data => {
-                if (data.includes("POINTER_BUTTON") || data.includes("POINTER_SCROLL")) {
-                    root.handlePointerLine(data);
-                }
-            }
-        }
-
-        stderr: StdioCollector {}
-    }
-
-    Process {
-        id: groupCheck
-        command: ["sh", "-c", "id -nG | tr ' ' '\n' | grep -qx input"]
-        running: true
-        onExited: (exitCode, exitStatus) => {
-            root.notInInputGroup = (exitCode !== 0);
-        }
-    }
     onSelectedDevicePathChanged: {
         console.log("[BongoCat] Device selection changed to:", selectedDevicePath);
-        inputProc.running = false;
-        inputRestartTimer.restart();
         resetMetrics();
     }
 
@@ -256,8 +201,13 @@ PluginComponent {
             return "primary";
         return "classic";
     }
-    readonly property string catCustomColor: (pluginData && pluginData.catCustomColor)
-        ? pluginData.catCustomColor : "primary"
+    readonly property string catCustomColor: {
+        const c = pluginData?.catCustomColor;
+        if (!c) return "primary";
+        if (typeof c === "string") return c;
+        if (typeof c === "object" && c.hex) return String(c.hex);
+        return "primary";
+    }
     readonly property color resolvedCatColor: {
         if (root.classicIdle && root.isWaiting)
             return Theme.surfaceText;
@@ -268,17 +218,17 @@ PluginComponent {
         return Theme.surfaceText;
     }
 
-    // Label/value mapping for the popout dropdown (DankDropdown is label-based).
-    // Both directions go through I18n.tr() so they stay consistent per locale.
-    readonly property var colorModeOptions: [I18n.tr("Classic B/W"), I18n.tr("Theme Primary"), I18n.tr("Custom")]
+    // Label/value mapping for the popout dropdown (DDropdown is label-based).
+    // Both directions go through I18n.trFor("bongoCat", ) so they stay consistent per locale.
+    readonly property var colorModeOptions: [I18n.trFor("bongoCat", "Classic B/W"), I18n.trFor("bongoCat", "Theme Primary"), I18n.trFor("bongoCat", "Custom")]
     function colorModeToLabel(m) {
-        if (m === "primary") return I18n.tr("Theme Primary");
-        if (m === "custom") return I18n.tr("Custom");
-        return I18n.tr("Classic B/W");
+        if (m === "primary") return I18n.trFor("bongoCat", "Theme Primary");
+        if (m === "custom") return I18n.trFor("bongoCat", "Custom");
+        return I18n.trFor("bongoCat", "Classic B/W");
     }
     function labelToColorMode(l) {
-        if (l === I18n.tr("Theme Primary")) return "primary";
-        if (l === I18n.tr("Custom")) return "custom";
+        if (l === I18n.trFor("bongoCat", "Theme Primary")) return "primary";
+        if (l === I18n.trFor("bongoCat", "Custom")) return "custom";
         return "classic";
     }
 
@@ -361,7 +311,7 @@ PluginComponent {
         id: metricsTicker
         interval: 1000
         repeat: true
-        running: root.showMetrics
+        running: root.showMetrics && root.surfaceLive
         onTriggered: root._pruneAndCompute()
     }
 
@@ -394,6 +344,66 @@ PluginComponent {
     readonly property bool soundOnMouse: (pluginData && pluginData.soundOnMouse !== undefined ? pluginData.soundOnMouse : false)
     readonly property string soundProfile: (pluginData && pluginData.soundProfile !== undefined ? pluginData.soundProfile : "bongo")
     readonly property real _soundVol: Math.max(0, Math.min(1, soundVolume / 100))
+
+    readonly property string catSkin: (pluginData && pluginData.catSkin !== undefined ? pluginData.catSkin : "classic")
+    readonly property var skinOptions: [I18n.trFor("bongoCat", "Classic (Vector)"), I18n.trFor("bongoCat", "Pixel Doodle")]
+    function skinToLabel(s) {
+        if (s === "pixel") return I18n.trFor("bongoCat", "Pixel Doodle");
+        return I18n.trFor("bongoCat", "Classic (Vector)");
+    }
+    function labelToSkin(l) {
+        if (l === I18n.trFor("bongoCat", "Pixel Doodle")) return "pixel";
+        return "classic";
+    }
+
+    readonly property string pixelSkinColor: (pluginData && pluginData.pixelSkinColor !== undefined ? pluginData.pixelSkinColor : "white")
+    readonly property var pixelColorOptions: [
+        I18n.trFor("bongoCat", "Classic White"),
+        I18n.trFor("bongoCat", "Midnight Black"),
+        I18n.trFor("bongoCat", "Ginger Orange"),
+        I18n.trFor("bongoCat", "Calico"),
+        I18n.trFor("bongoCat", "Siamese"),
+        I18n.trFor("bongoCat", "Sakura Pink"),
+        I18n.trFor("bongoCat", "Cyberpunk"),
+        I18n.trFor("bongoCat", "Zombie")
+    ]
+    function pixelColorToLabel(c) {
+        if (c === "black") return I18n.trFor("bongoCat", "Midnight Black");
+        if (c === "orange") return I18n.trFor("bongoCat", "Ginger Orange");
+        if (c === "calico") return I18n.trFor("bongoCat", "Calico");
+        if (c === "siamese") return I18n.trFor("bongoCat", "Siamese");
+        if (c === "pink") return I18n.trFor("bongoCat", "Sakura Pink");
+        if (c === "cyberpunk") return I18n.trFor("bongoCat", "Cyberpunk");
+        if (c === "zombie") return I18n.trFor("bongoCat", "Zombie");
+        return I18n.trFor("bongoCat", "Classic White");
+    }
+    function labelToPixelColor(l) {
+        if (l === I18n.trFor("bongoCat", "Midnight Black")) return "black";
+        if (l === I18n.trFor("bongoCat", "Ginger Orange")) return "orange";
+        if (l === I18n.trFor("bongoCat", "Calico")) return "calico";
+        if (l === I18n.trFor("bongoCat", "Siamese")) return "siamese";
+        if (l === I18n.trFor("bongoCat", "Sakura Pink")) return "pink";
+        if (l === I18n.trFor("bongoCat", "Cyberpunk")) return "cyberpunk";
+        if (l === I18n.trFor("bongoCat", "Zombie")) return "zombie";
+        return "white";
+    }
+
+    readonly property string pixelSkinFolder: pixelSkinColor === "white" ? "pixel" : ("pixel_" + pixelSkinColor)
+
+    readonly property var pixelSpriteMap: [
+        "./assets/skins/" + pixelSkinFolder + "/idle@4x.png",
+        "./assets/skins/" + pixelSkinFolder + "/left@4x.png",
+        "./assets/skins/" + pixelSkinFolder + "/right@4x.png",
+        "./assets/skins/" + pixelSkinFolder + "/both@4x.png"
+    ]
+    readonly property string pixelBlinkSprite: "./assets/skins/" + pixelSkinFolder + "/blink@4x.png"
+    readonly property string pixelSleepSprite: "./assets/skins/" + pixelSkinFolder + "/sleep@4x.png"
+
+    readonly property string activeSpriteSource: {
+        if (root.forceSleep || root.isWaiting) return pixelSleepSprite;
+        if (root.isBlinking && root.catState === 0) return pixelBlinkSprite;
+        return pixelSpriteMap[root.catState] || pixelSpriteMap[0];
+    }
 
     function playClick(isBigHit) {
         if (!soundEnabled || forceSleep)
@@ -493,7 +503,7 @@ PluginComponent {
         id: blinkIntervalTimer
         interval: 6000 + Math.random() * 8000
         repeat: true
-        running: root.enableBlinking && !root.isWaiting
+        running: root.enableBlinking && !root.isWaiting && !root.forceSleep && root.surfaceLive
         onTriggered: {
             interval = 6000 + Math.random() * 8000;
             isBlinking = true;
@@ -508,66 +518,27 @@ PluginComponent {
     }
 
     function fetchDevices() {
-        // Devices whose lowercase name matches this regex are always included,
-        // even if they would otherwise be filtered by the exclude list.
-        const includePattern = "kanata";
-
-        const excludePattern = [
-            "power button", "video bus", "speaker", "headphone",
-            "lid switch", "touchpad", "extra buttons", "uinput",
-            "server", "hitune", "inphic", "instant"
-        ].join("|");
-
-        const awkScript = `
-            /^N: Name=/ {
-                name = $0
-                sub(/^N: Name="/, "", name)
-                sub(/"$/, "", name)
-            }
-            /^H: Handlers=/ {
-                lower = tolower(name)
-                include = (lower ~ /${includePattern}/)
-                exclude = (lower ~ /${excludePattern}/)
-                if ($0 ~ /kbd/ && (include || ($0 !~ /mouse/ && !exclude))) {
-                    for (i = 1; i <= NF; i++) {
-                        if ($i ~ /^event[0-9]+$/) {
-                            print name "|/dev/input/" $i
-                            next
-                        }
-                    }
-                }
-            }
-        `;
-        const cmd = `awk '${awkScript}' /proc/bus/input/devices`;
-        
-        Proc.runCommand("bongoCat.fetchDevices", ["bash", "-c", cmd], (stdout, exitCode) => {
-            if (exitCode !== 0) return;
-            const output = stdout.trim();
-            if (!output) return;
-
+        InputDeviceScanner.scanKeyboards("bongoCat.fetchDevices", (devices) => {
             let options = ["All Keyboards (Auto)"];
             let map = { "All Keyboards (Auto)": "all" };
             let seenPaths = new Set();
             seenPaths.add("all");
 
-            output.split("\n").forEach(line => {
-                const parts = line.split("|");
-                if (parts.length === 2) {
-                    const name = parts[0].trim();
-                    const path = parts[1].trim();
-                    if (seenPaths.has(path)) return;
-                    seenPaths.add(path);
+            for (let i = 0; i < devices.length; i++) {
+                const name = devices[i].label;
+                const path = devices[i].value;
+                if (seenPaths.has(path)) continue;
+                seenPaths.add(path);
 
-                    let uniqueName = name;
-                    let i = 2;
-                    while (options.includes(uniqueName)) {
-                        uniqueName = name + " (" + i + ")";
-                        i++;
-                    }
-                    options.push(uniqueName);
-                    map[uniqueName] = path;
+                let uniqueName = name;
+                let counter = 2;
+                while (options.includes(uniqueName)) {
+                    uniqueName = name + " (" + counter + ")";
+                    counter++;
                 }
-            });
+                options.push(uniqueName);
+                map[uniqueName] = path;
+            }
             root.deviceOptions = options;
             root.deviceMap = map;
         });
@@ -599,66 +570,38 @@ PluginComponent {
         root.triggerPopout();
     }
 
-    Process {
-        id: inputProc
-        command: {
-            // --show-keycodes makes libinput emit real key names (otherwise masked
-            // as "***"), which lets us classify keystrokes for metrics and detect
-            // big-hit keys in Auto mode.
-            const cmd = selectedDevicePath === "all"
-                ? ["libinput", "debug-events", "--show-keycodes"]
-                : ["evtest", selectedDevicePath];
-            console.log("[BongoCat] Starting input process with command:", JSON.stringify(cmd));
-            return cmd;
+    InputEventListener {
+        id: inputListener
+        enabled: true
+        selectedDevicePath: root.selectedDevicePath
+        monitorMouse: root.mouseEnabled
+
+        onKeyPressed: (keyName, keyCode) => {
+            const isBigHit = root.doubleSlam && (keyName === "KEY_SPACE" || keyName === "KEY_ENTER" || keyName === "KEY_KPENTER");
+            root.recordKeystroke(keyName);
+            root.onKeyPress(isBigHit);
         }
-        running: true
-
-        stdout: SplitParser {
-            splitMarker: "\n"
-            onRead: data => {
-                if (data.includes("EV_KEY")) {
-                    const keyMatch = data.match(/(KEY_[A-Z0-9_]+)/);
-                    const keyName = keyMatch ? keyMatch[1] : "";
-                    const isBigHit = root.doubleSlam && (keyName === "KEY_SPACE" || keyName === "KEY_ENTER" || keyName === "KEY_KPENTER");
-                    if (data.includes("value 1")) {
-                        root.recordKeystroke(keyName);
-                        root.onKeyPress(isBigHit);
-                    } else if (data.includes("value 0")) {
-                        root.onKeyRelease(isBigHit);
-                    } else if (data.includes("value 2")) {
-                        root.onKeyRepeat(isBigHit);
-                    }
-                } else if (root.mouseEnabled && (data.includes("POINTER_BUTTON") || data.includes("POINTER_SCROLL"))) {
-                    root.handlePointerLine(data);
-                } else if (data.includes("KEYBOARD_KEY")) {
-                    const keyMatch = data.match(/(KEY_[A-Z0-9_]+)/);
-                    const keyName = keyMatch ? keyMatch[1] : "";
-                    const isBigHit = root.doubleSlam && (keyName === "KEY_SPACE" || keyName === "KEY_ENTER" || keyName === "KEY_KPENTER");
-                    if (data.includes("pressed")) {
-                        root.recordKeystroke(keyName);
-                        root.onKeyPress(isBigHit);
-                    } else if (data.includes("released")) {
-                        root.onKeyRelease(isBigHit);
-                    } else if (data.includes("repeat")) {
-                        root.onKeyRepeat(isBigHit);
-                    }
-                }
-            }
+        onKeyReleased: (keyName, keyCode) => {
+            const isBigHit = root.doubleSlam && (keyName === "KEY_SPACE" || keyName === "KEY_ENTER" || keyName === "KEY_KPENTER");
+            root.onKeyRelease(isBigHit);
         }
-
-        stderr: StdioCollector {}
-
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                console.warn("[BongoCat] evtest failed. Error code:", exitCode);
+        onKeyRepeated: (keyName, keyCode) => {
+            const isBigHit = root.doubleSlam && (keyName === "KEY_SPACE" || keyName === "KEY_ENTER" || keyName === "KEY_KPENTER");
+            root.onKeyRepeat(isBigHit);
+        }
+        onRawLineReceived: line => {
+            if (root.mouseEnabled && (line.includes("POINTER_BUTTON") || line.includes("POINTER_SCROLL"))) {
+                root.handlePointerLine(line);
             }
         }
     }
 
     horizontalBarPill: Component {
         Item {
-            implicitWidth: pillContent.implicitWidth + Theme.spacingS
-            implicitHeight: Math.max(Theme.iconSize, pillContent.implicitHeight)
+            implicitWidth: root.isDock && !(root.showMetrics && root.metricsInBar)
+                ? root.effectiveIconSize
+                : Math.max(root.effectiveIconSize, pillContent.implicitWidth + (root.isDock ? 0 : Theme.spacingS))
+            implicitHeight: Math.max(root.effectiveIconSize, pillContent.implicitHeight)
 
             MouseArea {
                 id: clickArea
@@ -694,29 +637,51 @@ PluginComponent {
                 horizontalItemAlignment: Grid.AlignHCenter
                 verticalItemAlignment: Grid.AlignVCenter
 
-                Text {
-                    id: catLabel
-                    font.family: bongoFont.name
-                    font.pixelSize: 24 * root.catSize
-                    color: root.forceSleep ? Theme.surfaceVariantText : root.resolvedCatColor
-                    opacity: root.forceSleep ? 0.5 : 1.0
-                    text: root.forceSleep ? root.sleepGlyph : (root.isWaiting ? root.sleepGlyph : (root.isBlinking && root.catState === 0 ? root.blinkGlyph : root.glyphMap[root.catState]))
-                    transform: Translate { y: root.catYOffset }
+                Item {
+                    id: catContainer
+                    width: root.catSkin === "pixel" ? Math.round(root.effectiveIconSize * root.catSize * 1.25) : catLabel.implicitWidth
+                    height: root.catSkin === "pixel" ? Math.round(root.effectiveIconSize * root.catSize) : catLabel.implicitHeight
+
+                    Text {
+                        id: catLabel
+                        visible: root.catSkin !== "pixel"
+                        anchors.centerIn: parent
+                        font.family: bongoFont.name
+                        font.pixelSize: Math.round(root.effectiveIconSize * root.catSize)
+                        color: root.forceSleep ? Theme.surfaceVariantText : root.resolvedCatColor
+                        opacity: root.forceSleep ? 0.5 : 1.0
+                        text: root.forceSleep ? root.sleepGlyph : (root.isWaiting ? root.sleepGlyph : (root.isBlinking && root.catState === 0 ? root.blinkGlyph : root.glyphMap[root.catState]))
+                        transform: Translate { y: root.catYOffset }
+                    }
+
+                    Image {
+                        id: catPixelSprite
+                        visible: root.catSkin === "pixel"
+                        anchors.centerIn: parent
+                        width: parent.width
+                        height: parent.height
+                        fillMode: Image.PreserveAspectFit
+                        smooth: false
+                        mipmap: false
+                        opacity: root.forceSleep ? 0.5 : 1.0
+                        source: root.activeSpriteSource
+                        transform: Translate { y: root.catYOffset }
+                    }
                 }
 
                 StyledText {
                     visible: root.showMetrics && root.metricsInBar
                     text: root.liveWpm + " · " + root.cleanPercent + "%"
-                    font.pixelSize: Theme.fontSizeSmall
+                    font.pixelSize: root.effectiveTextSize
                     color: root.forceSleep ? Theme.surfaceVariantText : Theme.surfaceText
                     opacity: root.forceSleep ? 0.5 : 1.0
                 }
             }
 
-            DankIcon {
+            DIcon {
                 visible: root.inputBroken
                 name: "warning"
-                size: Theme.iconSizeSmall
+                size: Math.max(12, Math.round(root.effectiveIconSize * 0.6))
                 color: Theme.error
                 anchors.top: parent.top
                 anchors.right: parent.right
@@ -726,414 +691,623 @@ PluginComponent {
 
     verticalBarPill: horizontalBarPill
 
-    popoutWidth: 280
-    popoutHeight: 450
+    popoutWidth: 320
+    popoutHeight: 0 // auto from content
 
     popoutContent: Component {
         PopoutComponent {
             id: popout
             width: root.popoutWidth
-            headerText: "Bongo Cat"
-            showCloseButton: true
+            headerText: ""
+            showCloseButton: false
 
             readonly property bool isActive: !root.isWaiting && !root.forceSleep
 
             Column {
+                id: contentCol
                 width: parent.width
-                spacing: Theme.spacingL
+                spacing: Theme.spacingM
 
+                // Warning card (if input/tool broken)
                 Rectangle {
                     width: parent.width
                     visible: root.inputBroken || root.mouseBroken
-                    radius: Theme.cornerRadius
-                    color: Theme.errorHover
+                    radius: M3E.outerR
+                    color: Theme.errorContainer ?? Theme.errorHover
                     implicitHeight: warnCol.implicitHeight + Theme.spacingM * 2
 
-                    Column {
-                        id: warnCol
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.margins: Theme.spacingM
-                        spacing: Theme.spacingXS
-
-                        StyledText {
-                            width: parent.width
-                            visible: root.inputToolMissing
-                            text: root.selectedDevicePath === "all"
-                                ? I18n.tr("The 'libinput' CLI was not found, so Auto mode can't see your keyboard. Install it (Arch: libinput-tools, Debian/Ubuntu: libinput-tools, Fedora: libinput-utils) or pick a specific keyboard below.")
-                                : I18n.tr("'evtest' was not found — install it to monitor a specific keyboard, or switch to Auto mode.")
-                            font.pixelSize: Theme.fontSizeSmall
-                            color: Theme.error
-                            wrapMode: Text.Wrap
-                        }
-
-                        StyledText {
-                            width: parent.width
-                            visible: root.notInInputGroup
-                            text: I18n.tr("Your user is not in the 'input' group, so keyboard events can't be read. Run: sudo usermod -aG input $USER — then log out and back in.")
-                            font.pixelSize: Theme.fontSizeSmall
-                            color: Theme.error
-                            wrapMode: Text.Wrap
-                        }
-
-                        StyledText {
-                            width: parent.width
-                            visible: root.mouseBroken
-                            text: I18n.tr("Mouse interaction needs the 'libinput' CLI — install it (Arch: libinput-tools, Debian/Ubuntu: libinput-tools, Fedora: libinput-utils) or switch the keyboard to Auto mode.")
-                            font.pixelSize: Theme.fontSizeSmall
-                            color: Theme.error
-                            wrapMode: Text.Wrap
-                        }
-                    }
-                }
-
-                StyledRect {
-                    width: parent.width
-                    height: 140
-                    radius: Theme.cornerRadius
-                    color: (popout.isActive && root.catColorMode === "classic") ? Theme.primaryContainer : Theme.surface
-                    clip: true
-                    
-                    // Gradient overlay
-                    Rectangle {
-                        anchors.fill: parent
-                        gradient: Gradient {
-                            GradientStop { position: 0.0; color: "transparent" }
-                            GradientStop { position: 1.0; color: Theme.shadowMedium }
-                        }
-                    }
-
-                    // The Big Cat
-                    Text {
-                        anchors.centerIn: parent
-                        font.family: bongoFont.name
-                        font.pixelSize: Theme.fontSizeXLarge * 4
-                        font.letterSpacing: -2
-                        color: root.catColorMode === "classic"
-                            ? (popout.isActive ? Theme.onPrimaryContainer : Theme.surfaceText)
-                            : root.resolvedCatColor
-                        text: root.forceSleep ? root.sleepGlyph : (!popout.isActive ? root.sleepGlyph : (root.isBlinking && root.catState === 0 ? root.blinkGlyph : root.glyphMap[root.catState]))
-                    }
-                }
-
-                // Typing metrics overlay (optional)
-                Row {
-                    width: parent.width
-                    visible: root.showMetrics
-                    spacing: Theme.spacingM
-
-                    StyledRect {
-                        width: (parent.width - Theme.spacingM) / 2
-                        height: 64
-                        radius: Theme.cornerRadius
-                        color: Theme.surfaceContainerHigh
-
                         Column {
-                            anchors.centerIn: parent
-                            spacing: 0
+                            id: warnCol
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.margins: Theme.spacingM
+                            spacing: Theme.spacingXS
+
                             StyledText {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: root.liveWpm
-                                font.pixelSize: Theme.fontSizeLarge
-                                font.weight: Font.Bold
-                                color: Theme.primary
+                                width: parent.width
+                                visible: root.inputToolMissing
+                                text: root.selectedDevicePath === "all"
+                                    ? I18n.trFor("bongoCat", "The 'libinput' CLI was not found, so Auto mode can't see your keyboard. Install it (Arch: libinput-tools, Debian/Ubuntu: libinput-tools, Fedora: libinput-utils) or pick a specific keyboard below.")
+                                    : I18n.trFor("bongoCat", "'evtest' was not found — install it to monitor a specific keyboard, or switch to Auto mode.")
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.onErrorContainer ?? Theme.error
+                                wrapMode: Text.Wrap
                             }
+
                             StyledText {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: "WPM"
-                                font.pixelSize: Theme.fontSizeExtraSmall
-                                color: Theme.surfaceVariantText
+                                width: parent.width
+                                visible: root.notInInputGroup
+                                text: I18n.trFor("bongoCat", "Your user is not in the 'input' group, so keyboard events can't be read. Run: sudo usermod -aG input $USER — then log out and back in.")
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.onErrorContainer ?? Theme.error
+                                wrapMode: Text.Wrap
+                            }
+
+                            StyledText {
+                                width: parent.width
+                                visible: root.mouseBroken
+                                text: I18n.trFor("bongoCat", "Mouse interaction needs the 'libinput' CLI — install it (Arch: libinput-tools, Debian/Ubuntu: libinput-tools, Fedora: libinput-utils) or switch the keyboard to Auto mode.")
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.onErrorContainer ?? Theme.error
+                                wrapMode: Text.Wrap
+                            }
+                        }
+                    }
+
+                    // M3E Hero Card: Cat Display Stage
+                    DCard {
+                        id: catHeroStage
+                        width: parent.width
+                        height: 140
+                        restRadius: Theme.cornerRadiusL
+                        pad: 0
+                        clipContent: true
+                        color: (popout.isActive && root.catColorMode === "classic")
+                            ? Theme.primaryContainer
+                            : Theme.surfaceContainerHigh
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: M3E.effectsMs
+                                easing.type: Easing.BezierSpline
+                                easing.bezierCurve: M3E.curveEffects
+                            }
+                        }
+
+                        // Gradient ambient depth
+                        Rectangle {
+                            anchors.fill: parent
+                            gradient: Gradient {
+                                GradientStop { position: 0.0; color: "transparent" }
+                                GradientStop { position: 1.0; color: Theme.withAlpha(Theme.shadowColor ?? "#000000", 0.12) }
+                            }
+                        }
+
+                        // The Big Cat
+                        Item {
+                            anchors.centerIn: parent
+                            width: root.catSkin === "pixel" ? 140 : bigCatText.implicitWidth
+                            height: root.catSkin === "pixel" ? 110 : bigCatText.implicitHeight
+                            scale: popout.isActive ? 1.0 : 0.94
+
+                            Behavior on scale {
+                                NumberAnimation {
+                                    duration: M3E.spatialFastMs
+                                    easing.type: Easing.BezierSpline
+                                    easing.bezierCurve: M3E.curveFastSpatial
+                                }
+                            }
+
+                            Text {
+                                id: bigCatText
+                                visible: root.catSkin !== "pixel"
+                                anchors.centerIn: parent
+                                font.family: bongoFont.name
+                                font.pixelSize: Theme.fontSizeXLarge * 4
+                                font.letterSpacing: -2
+                                color: root.catColorMode === "classic"
+                                    ? (popout.isActive ? Theme.onPrimaryContainer : Theme.surfaceText)
+                                    : root.resolvedCatColor
+                                text: root.forceSleep
+                                    ? root.sleepGlyph
+                                    : (!popout.isActive ? root.sleepGlyph : (root.isBlinking && root.catState === 0 ? root.blinkGlyph : root.glyphMap[root.catState]))
+                            }
+
+                            Image {
+                                id: bigCatPixel
+                                visible: root.catSkin === "pixel"
+                                anchors.centerIn: parent
+                                width: parent.width
+                                height: parent.height
+                                fillMode: Image.PreserveAspectFit
+                                smooth: false
+                                mipmap: false
+                                source: root.activeSpriteSource
+                            }
+                        }
+
+                        // Interactive sleep toggle chip on hero top-right
+                        Rectangle {
+                            anchors.top: parent.top
+                            anchors.right: parent.right
+                            anchors.margins: Theme.spacingS
+                            width: sleepChipRow.implicitWidth + Theme.spacingS * 2
+                            height: 28
+                            radius: height / 2
+                            color: root.forceSleep ? Theme.primary : Theme.withAlpha(Theme.surface, 0.45)
+
+                            Row {
+                                id: sleepChipRow
+                                anchors.centerIn: parent
+                                spacing: 4
+                                DIcon {
+                                    name: root.forceSleep ? "bedtime" : "wb_sunny"
+                                    size: 14
+                                    color: root.forceSleep ? Theme.onPrimary : Theme.surfaceText
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                                StyledText {
+                                    text: root.forceSleep ? I18n.trFor("bongoCat", "Asleep") : I18n.trFor("bongoCat", "Awake")
+                                    font.pixelSize: Theme.fontSizeExtraSmall
+                                    font.weight: Font.Medium
+                                    color: root.forceSleep ? Theme.onPrimary : Theme.surfaceText
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.forceSleep = !root.forceSleep
                             }
                         }
                     }
 
-                    StyledRect {
-                        width: (parent.width - Theme.spacingM) / 2
-                        height: 64
-                        radius: Theme.cornerRadius
-                        color: Theme.surfaceContainerHigh
-
-                        Column {
-                            anchors.centerIn: parent
-                            spacing: 0
-                            StyledText {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: root.cleanPercent + "%"
-                                font.pixelSize: Theme.fontSizeLarge
-                                font.weight: Font.Bold
-                                color: Theme.primary
-                            }
-                            StyledText {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: "Clean"
-                                font.pixelSize: Theme.fontSizeExtraSmall
-                                color: Theme.surfaceVariantText
-                            }
-                        }
-                    }
-                }
-
-                Column {
-                    width: parent.width
-                    spacing: Theme.spacingS
-
-                    // Header for settings
-                    StyledText {
-                        text: "Appearance & Behavior"
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
-                        color: Theme.primary
-                        opacity: 0.8
-                    }
-
-                    // Keyboard Selection
+                    // M3E Metric Tiles (WPM & Cleanliness)
                     Row {
                         width: parent.width
-                        height: 36
-                        spacing: Theme.spacingM
-                        DankIcon { name: "keyboard"; size: Theme.iconSizeMedium; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
-                        DankDropdown {
-                            id: keyboardDropdown
-                            width: parent.width - 40
-                            options: root.deviceOptions
-                            currentValue: root.selectedDeviceName
-                            maxPopupHeight: 200
-                            compactMode: true
-                            onValueChanged: v => root.saveSetting("selectedDevicePath", root.deviceMap[v])
-                        }
-                    }
+                        visible: root.showMetrics
+                        spacing: Theme.groupedListGap
 
-                    // Size Setting
-                    Column {
-                        width: parent.width
-                        spacing: 2
+                        DCard {
+                            id: wpmTile
+                            width: (parent.width - Theme.groupedListGap) / 2
+                            height: 60
+                            pad: 0
+                            topLeftRadius: Theme.groupedListOuterRadius
+                            bottomLeftRadius: Theme.groupedListOuterRadius
+                            topRightRadius: Theme.groupedListInnerRadius
+                            bottomRightRadius: Theme.groupedListInnerRadius
+                            color: Theme.surfaceContainerHigh
 
-                        StyledText {
-                            text: "Cat Size"
-                            font.pixelSize: Theme.fontSizeExtraSmall
-                            font.weight: Font.Medium
-                            color: Theme.surfaceVariantText
-                        }
-
-                        Row {
-                            width: parent.width
-                            height: 32
-                            spacing: Theme.spacingM
-                            DankIcon { name: "aspect_ratio"; size: Theme.iconSizeSmall; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
-                            DankSlider {
-                                id: sizeSlider
-                                width: parent.width - 80
-                                value: root.catSize * 100
-                                minimum: 50; maximum: 200
-                                centerMinimum: false; unit: "%"; showValue: true
-                                onSliderValueChanged: v => root.saveSetting("catSizePercent", v)
-                                anchors.verticalCenter: parent.verticalCenter
+                            Column {
+                                anchors.centerIn: parent
+                                spacing: 1
+                                NumericText {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: String(root.liveWpm)
+                                    font.features: ({ "tnum": 1 })
+                                    font.pixelSize: Theme.fontSizeLarge
+                                    font.weight: Font.Bold
+                                    color: Theme.primary
+                                }
+                                StyledText {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: "WPM"
+                                    font.pixelSize: Theme.fontSizeExtraSmall
+                                    font.weight: Font.Medium
+                                    color: Theme.surfaceVariantText
+                                }
                             }
-                            DankIcon {
-                                name: "restore"
-                                size: Theme.iconSizeSmall
-                                color: Theme.primary
-                                opacity: (root.catSize * 100) !== 100 ? 1.0 : 0.3
-                                anchors.verticalCenter: parent.verticalCenter
-                                MouseArea {
-                                    anchors.fill: parent
-                                    enabled: (root.catSize * 100) !== 100
-                                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                    onClicked: {
-                                        root.saveSetting("catSizePercent", 100);
-                                        sizeSlider.value = 100;
-                                    }
+                        }
+
+                        DCard {
+                            id: cleanTile
+                            width: (parent.width - Theme.groupedListGap) / 2
+                            height: 60
+                            pad: 0
+                            topLeftRadius: Theme.groupedListInnerRadius
+                            bottomLeftRadius: Theme.groupedListInnerRadius
+                            topRightRadius: Theme.groupedListOuterRadius
+                            bottomRightRadius: Theme.groupedListOuterRadius
+                            color: Theme.surfaceContainerHigh
+
+                            Column {
+                                anchors.centerIn: parent
+                                spacing: 1
+                                NumericText {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: root.cleanPercent + "%"
+                                    font.features: ({ "tnum": 1 })
+                                    font.pixelSize: Theme.fontSizeLarge
+                                    font.weight: Font.Bold
+                                    color: Theme.primary
+                                }
+                                StyledText {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: "Clean"
+                                    font.pixelSize: Theme.fontSizeExtraSmall
+                                    font.weight: Font.Medium
+                                    color: Theme.surfaceVariantText
                                 }
                             }
                         }
                     }
 
-                    // Sleep Timeout
+                    // M3E Connected Settings Card Stack
                     Column {
                         width: parent.width
-                        spacing: 2
+                        spacing: Theme.groupedListGap
 
-                        StyledText {
-                            text: "Sleep Timeout"
-                            font.pixelSize: Theme.fontSizeExtraSmall
-                            font.weight: Font.Medium
-                            color: Theme.surfaceVariantText
+                        // Row 1: Device Selector Card
+                        DCard {
+                            width: parent.width
+                            height: 48
+                            pad: 0
+                            topLeftRadius: Theme.groupedListOuterRadius
+                            topRightRadius: Theme.groupedListOuterRadius
+                            bottomLeftRadius: Theme.groupedListInnerRadius
+                            bottomRightRadius: Theme.groupedListInnerRadius
+                            color: Theme.surfaceContainerHigh
+
+                            Row {
+                                anchors.fill: parent
+                                anchors.leftMargin: Theme.spacingM
+                                anchors.rightMargin: Theme.spacingM
+                                spacing: Theme.spacingS
+
+                                DIcon {
+                                    name: "keyboard"
+                                    size: Theme.iconSizeSmall
+                                    color: Theme.primary
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                DDropdown {
+                                    id: keyboardDropdown
+                                    width: parent.width - Theme.iconSizeSmall - Theme.spacingS
+                                    options: root.deviceOptions
+                                    currentValue: root.selectedDeviceName
+                                    maxPopupHeight: 200
+                                    compactMode: true
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    onValueChanged: v => root.saveSetting("selectedDevicePath", root.deviceMap[v])
+                                }
+                            }
                         }
 
-                        Row {
+                        // Row 2: Skin Selector Card
+                        DCard {
                             width: parent.width
-                            height: 32
-                            spacing: Theme.spacingM
-                            DankIcon { name: "bedtime"; size: Theme.iconSizeSmall; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
-                            DankSlider {
-                                id: sleepSlider
-                                width: parent.width - 80
-                                value: root.waitingTimeout / 1000
-                                minimum: 1; maximum: 10
-                                centerMinimum: false; unit: "s"; showValue: true
-                                onSliderValueChanged: v => root.saveSetting("waitingTimeout", v)
-                                anchors.verticalCenter: parent.verticalCenter
+                            height: 48
+                            pad: 0
+                            topLeftRadius: Theme.groupedListInnerRadius
+                            topRightRadius: Theme.groupedListInnerRadius
+                            bottomLeftRadius: Theme.groupedListInnerRadius
+                            bottomRightRadius: Theme.groupedListInnerRadius
+                            color: Theme.surfaceContainerHigh
+
+                            Row {
+                                anchors.fill: parent
+                                anchors.leftMargin: Theme.spacingM
+                                anchors.rightMargin: Theme.spacingM
+                                spacing: Theme.spacingS
+
+                                DIcon {
+                                    name: "pets"
+                                    size: Theme.iconSizeSmall
+                                    color: Theme.primary
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                DDropdown {
+                                    id: skinDropdown
+                                    width: parent.width - Theme.iconSizeSmall - Theme.spacingS
+                                    options: root.skinOptions
+                                    currentValue: root.skinToLabel(root.catSkin)
+                                    maxPopupHeight: 200
+                                    compactMode: true
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    onValueChanged: v => root.saveSetting("catSkin", root.labelToSkin(v))
+                                }
                             }
-                            DankIcon {
-                                name: "restore"
-                                size: Theme.iconSizeSmall
-                                color: Theme.primary
-                                opacity: (root.waitingTimeout / 1000) !== 5 ? 1.0 : 0.3
-                                anchors.verticalCenter: parent.verticalCenter
-                                MouseArea {
-                                    anchors.fill: parent
-                                    enabled: (root.waitingTimeout / 1000) !== 5
-                                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                    onClicked: {
-                                        root.saveSetting("waitingTimeout", 5);
-                                        sleepSlider.value = 5;
+                        }
+
+                        // Row 3: Cat Color Mode & Swatch (Vector skin only)
+                        DCard {
+                            width: parent.width
+                            height: 48
+                            pad: 0
+                            visible: root.catSkin !== "pixel"
+                            topLeftRadius: Theme.groupedListInnerRadius
+                            topRightRadius: Theme.groupedListInnerRadius
+                            bottomLeftRadius: Theme.groupedListInnerRadius
+                            bottomRightRadius: Theme.groupedListInnerRadius
+                            color: Theme.surfaceContainerHigh
+
+                            Row {
+                                anchors.fill: parent
+                                anchors.leftMargin: Theme.spacingM
+                                anchors.rightMargin: Theme.spacingM
+                                spacing: Theme.spacingS
+
+                                DIcon {
+                                    name: "palette"
+                                    size: Theme.iconSizeSmall
+                                    color: Theme.primary
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                DDropdown {
+                                    id: colorModeDropdown
+                                    width: parent.width - Theme.iconSizeSmall - Theme.spacingS - (customSwatch.visible ? 36 + Theme.spacingS : 0)
+                                    options: root.colorModeOptions
+                                    currentValue: root.colorModeToLabel(root.catColorMode)
+                                    maxPopupHeight: 200
+                                    compactMode: true
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    onValueChanged: v => root.saveSetting("catColorMode", root.labelToColorMode(v))
+                                }
+
+                                Rectangle {
+                                    id: customSwatch
+                                    visible: root.catColorMode === "custom"
+                                    width: 36
+                                    height: 28
+                                    radius: Theme.cornerRadiusXS
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    color: root.catCustomColor === "primary" ? Theme.primary : Qt.color(root.catCustomColor)
+                                    border.color: Theme.outline
+                                    border.width: 1
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            if (typeof PopoutService !== "undefined" && PopoutService && PopoutService.colorPickerModal) {
+                                                const widget = root;
+                                                PopoutService.colorPickerModal.selectedColor = root.catCustomColor === "primary" ? Theme.primary : Qt.color(root.catCustomColor);
+                                                PopoutService.colorPickerModal.pickerTitle = I18n.trFor("bongoCat", "Cat Color");
+                                                PopoutService.colorPickerModal.onColorSelectedCallback = function(selectedColor) {
+                                                    widget.saveSetting("catCustomColor", selectedColor.toString());
+                                                };
+                                                PopoutService.colorPickerModal.show();
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    // Vertical Offset
-                    Column {
-                        width: parent.width
-                        spacing: 2
-
-                        StyledText {
-                            text: "Vertical Offset"
-                            font.pixelSize: Theme.fontSizeExtraSmall
-                            font.weight: Font.Medium
-                            color: Theme.surfaceVariantText
-                        }
-
-                        Row {
+                        // Row 3 (alt): Pixel Cat Color (Pixel Doodle skin only)
+                        DCard {
                             width: parent.width
-                            height: 32
-                            spacing: Theme.spacingM
-                            DankIcon { name: "swap_vert"; size: Theme.iconSizeSmall; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
-                            DankSlider {
-                                id: offsetSlider
-                                width: parent.width - 80
-                                value: root.catYOffset
-                                minimum: -10; maximum: 10
-                                centerMinimum: false; unit: "px"; showValue: true
-                                onSliderValueChanged: v => root.saveSetting("catYOffset", v)
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
-                            DankIcon {
-                                name: "restore"
-                                size: Theme.iconSizeSmall
-                                color: Theme.primary
-                                opacity: root.catYOffset !== 0 ? 1.0 : 0.3
-                                anchors.verticalCenter: parent.verticalCenter
-                                MouseArea {
-                                    anchors.fill: parent
-                                    enabled: root.catYOffset !== 0
-                                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                    onClicked: {
-                                        root.saveSetting("catYOffset", 0);
-                                        offsetSlider.value = 0;
-                                    }
+                            height: 48
+                            pad: 0
+                            visible: root.catSkin === "pixel"
+                            topLeftRadius: Theme.groupedListInnerRadius
+                            topRightRadius: Theme.groupedListInnerRadius
+                            bottomLeftRadius: Theme.groupedListInnerRadius
+                            bottomRightRadius: Theme.groupedListInnerRadius
+                            color: Theme.surfaceContainerHigh
+
+                            Row {
+                                anchors.fill: parent
+                                anchors.leftMargin: Theme.spacingM
+                                anchors.rightMargin: Theme.spacingM
+                                spacing: Theme.spacingS
+
+                                DIcon {
+                                    name: "palette"
+                                    size: Theme.iconSizeSmall
+                                    color: Theme.primary
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                DDropdown {
+                                    id: pixelColorDropdown
+                                    width: parent.width - Theme.iconSizeSmall - Theme.spacingS
+                                    options: root.pixelColorOptions
+                                    currentValue: root.pixelColorToLabel(root.pixelSkinColor)
+                                    maxPopupHeight: 200
+                                    compactMode: true
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    onValueChanged: v => root.saveSetting("pixelSkinColor", root.labelToPixelColor(v))
                                 }
                             }
                         }
-                    }
 
-                    // Paw Hold Time
-                    Column {
-                        width: parent.width
-                        spacing: 2
-
-                        StyledText {
-                            text: "Paw Hold Time"
-                            font.pixelSize: Theme.fontSizeExtraSmall
-                            font.weight: Font.Medium
-                            color: Theme.surfaceVariantText
-                        }
-
-                        Row {
+                        // Row 3: Sliders Group Card (Cat Size, Sleep Timeout, Paw Hold)
+                        DCard {
                             width: parent.width
-                            height: 32
-                            spacing: Theme.spacingM
-                            DankIcon { name: "timer"; size: Theme.iconSizeSmall; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
-                            DankSlider {
-                                id: pawHoldSlider
-                                width: parent.width - 80
-                                value: root.pawHoldTime
-                                minimum: 0; maximum: 100
-                                centerMinimum: false; unit: "ms"; showValue: true
-                                onSliderValueChanged: v => root.saveSetting("pawHoldTime", v)
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
-                            DankIcon {
-                                name: "restore"
-                                size: Theme.iconSizeSmall
-                                color: Theme.primary
-                                opacity: root.pawHoldTime !== 0 ? 1.0 : 0.3
-                                anchors.verticalCenter: parent.verticalCenter
-                                MouseArea {
-                                    anchors.fill: parent
-                                    enabled: root.pawHoldTime !== 0
-                                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                    onClicked: {
-                                        root.saveSetting("pawHoldTime", 0);
-                                        pawHoldSlider.value = 0;
+                            implicitHeight: sliderRowsCol.implicitHeight + Theme.spacingM * 2
+                            pad: 0
+                            topLeftRadius: Theme.groupedListInnerRadius
+                            topRightRadius: Theme.groupedListInnerRadius
+                            bottomLeftRadius: Theme.groupedListOuterRadius
+                            bottomRightRadius: Theme.groupedListOuterRadius
+                            color: Theme.surfaceContainerHigh
+
+                            Column {
+                                id: sliderRowsCol
+                                anchors.fill: parent
+                                anchors.margins: Theme.spacingM
+                                spacing: Theme.spacingM
+
+                                // Size Slider
+                                Row {
+                                    width: parent.width
+                                    height: 36
+                                    spacing: Theme.spacingS
+
+                                    DIcon {
+                                        name: "aspect_ratio"
+                                        size: Theme.iconSizeSmall
+                                        color: Theme.primary
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    StyledText {
+                                        text: I18n.trFor("bongoCat", "Size")
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        color: Theme.surfaceText
+                                        width: 44
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    DSlider {
+                                        id: sizeSlider
+                                        width: parent.width - 44 - Theme.iconSizeSmall - 24 - Theme.spacingS * 3
+                                        value: root.catSize * 100
+                                        minimum: 50
+                                        maximum: 200
+                                        centerMinimum: false
+                                        unit: "%"
+                                        showValue: true
+                                        onSliderValueChanged: v => root.saveSetting("catSizePercent", v)
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    Item {
+                                        width: 24
+                                        height: 24
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        DIcon {
+                                            anchors.centerIn: parent
+                                            name: "restore"
+                                            size: 16
+                                            color: Theme.primary
+                                            opacity: (root.catSize * 100) !== 100 ? 0.9 : 0.25
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            enabled: (root.catSize * 100) !== 100
+                                            cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                            onClicked: {
+                                                root.saveSetting("catSizePercent", 100);
+                                                sizeSlider.value = 100;
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                        }
-                    }
 
-                    // Cat Color
-                    Column {
-                        width: parent.width
-                        spacing: 2
+                                // Sleep Timeout Slider
+                                Row {
+                                    width: parent.width
+                                    height: 36
+                                    spacing: Theme.spacingS
 
-                        StyledText {
-                            text: I18n.tr("Cat Color")
-                            font.pixelSize: Theme.fontSizeExtraSmall
-                            font.weight: Font.Medium
-                            color: Theme.surfaceVariantText
-                        }
+                                    DIcon {
+                                        name: "bedtime"
+                                        size: Theme.iconSizeSmall
+                                        color: Theme.primary
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
 
-                        Row {
-                            width: parent.width
-                            height: 32
-                            spacing: Theme.spacingM
-                            DankIcon { name: "palette"; size: Theme.iconSizeSmall; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
-                            DankDropdown {
-                                id: colorModeDropdown
-                                width: parent.width - 40 - (customSwatch.visible ? 40 + Theme.spacingM : 0)
-                                options: root.colorModeOptions
-                                currentValue: root.colorModeToLabel(root.catColorMode)
-                                maxPopupHeight: 200
-                                compactMode: true
-                                anchors.verticalCenter: parent.verticalCenter
-                                onValueChanged: v => root.saveSetting("catColorMode", root.labelToColorMode(v))
-                            }
-                            Rectangle {
-                                id: customSwatch
-                                visible: root.catColorMode === "custom"
-                                width: 40; height: 28; radius: Theme.cornerRadius
-                                anchors.verticalCenter: parent.verticalCenter
-                                color: root.catCustomColor === "primary" ? Theme.primary : Qt.color(root.catCustomColor)
-                                border.color: Theme.outlineStrong
-                                border.width: 2
-                                MouseArea {
-                                    anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: {
-                                        if (typeof PopoutService !== "undefined" && PopoutService && PopoutService.colorPickerModal) {
-                                            // Capture the widget root: the callback runs later in the
-                                            // modal's scope, where the enclosing-file `root` id no longer
-                                            // resolves (ReferenceError), so the save would never fire.
-                                            const widget = root;
-                                            PopoutService.colorPickerModal.selectedColor = root.catCustomColor === "primary" ? Theme.primary : Qt.color(root.catCustomColor);
-                                            PopoutService.colorPickerModal.pickerTitle = I18n.tr("Cat Color");
-                                            PopoutService.colorPickerModal.onColorSelectedCallback = function(selectedColor) {
-                                                widget.saveSetting("catCustomColor", selectedColor.toString());
-                                            };
-                                            PopoutService.colorPickerModal.show();
+                                    StyledText {
+                                        text: I18n.trFor("bongoCat", "Sleep")
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        color: Theme.surfaceText
+                                        width: 44
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    DSlider {
+                                        id: sleepSlider
+                                        width: parent.width - 44 - Theme.iconSizeSmall - 24 - Theme.spacingS * 3
+                                        value: root.waitingTimeout / 1000
+                                        minimum: 1
+                                        maximum: 10
+                                        centerMinimum: false
+                                        unit: "s"
+                                        showValue: true
+                                        onSliderValueChanged: v => root.saveSetting("waitingTimeout", v)
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    Item {
+                                        width: 24
+                                        height: 24
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        DIcon {
+                                            anchors.centerIn: parent
+                                            name: "restore"
+                                            size: 16
+                                            color: Theme.primary
+                                            opacity: (root.waitingTimeout / 1000) !== 5 ? 0.9 : 0.25
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            enabled: (root.waitingTimeout / 1000) !== 5
+                                            cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                            onClicked: {
+                                                root.saveSetting("waitingTimeout", 5);
+                                                sleepSlider.value = 5;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Paw Hold Slider
+                                Row {
+                                    width: parent.width
+                                    height: 36
+                                    spacing: Theme.spacingS
+
+                                    DIcon {
+                                        name: "timer"
+                                        size: Theme.iconSizeSmall
+                                        color: Theme.primary
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    StyledText {
+                                        text: I18n.trFor("bongoCat", "Paw")
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        color: Theme.surfaceText
+                                        width: 44
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    DSlider {
+                                        id: pawHoldSlider
+                                        width: parent.width - 44 - Theme.iconSizeSmall - 24 - Theme.spacingS * 3
+                                        value: root.pawHoldTime
+                                        minimum: 0
+                                        maximum: 100
+                                        centerMinimum: false
+                                        unit: "ms"
+                                        showValue: true
+                                        onSliderValueChanged: v => root.saveSetting("pawHoldTime", v)
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    Item {
+                                        width: 24
+                                        height: 24
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        DIcon {
+                                            anchors.centerIn: parent
+                                            name: "restore"
+                                            size: 16
+                                            color: Theme.primary
+                                            opacity: root.pawHoldTime !== 0 ? 0.9 : 0.25
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            enabled: root.pawHoldTime !== 0
+                                            cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                            onClicked: {
+                                                root.saveSetting("pawHoldTime", 0);
+                                                pawHoldSlider.value = 0;
+                                            }
                                         }
                                     }
                                 }
@@ -1141,89 +1315,142 @@ PluginComponent {
                         }
                     }
 
-                    // Quick Toggles
-                    Flow {
+                    // M3E Segmented Pill Action Strip for Quick Toggles
+                    DCard {
                         width: parent.width
-                        spacing: Theme.spacingL
+                        height: 38
+                        pad: 0
+                        color: "transparent"
+                        border.width: 0
 
-                        // Blink Toggle
                         Row {
-                            spacing: Theme.spacingS
-                            DankIcon {
-                                name: root.enableBlinking ? "visibility" : "visibility_off"
-                                size: Theme.iconSize
-                                color: root.enableBlinking ? Theme.primary : Theme.surfaceText
-                                opacity: root.enableBlinking ? 1.0 : 0.4
+                            width: parent.width
+                            spacing: Theme.groupedListGap
+
+                            // Blink Toggle Pill
+                            DCard {
+                                id: blinkBtn
+                                width: (parent.width - Theme.groupedListGap * 2) / 3
+                                height: 38
+                                pad: 0
+                                topLeftRadius: Theme.groupedListOuterRadius
+                                bottomLeftRadius: Theme.groupedListOuterRadius
+                                topRightRadius: Theme.groupedListInnerRadius
+                                bottomRightRadius: Theme.groupedListInnerRadius
+                                color: root.enableBlinking ? Theme.primaryContainer : (blinkArea.containsMouse ? Theme.surfaceContainerHighest : Theme.surfaceContainerHigh)
+
+                                Row {
+                                    anchors.centerIn: parent
+                                    spacing: 4
+                                    DIcon {
+                                        name: root.enableBlinking ? "visibility" : "visibility_off"
+                                        size: 16
+                                        color: root.enableBlinking ? Theme.onPrimaryContainer : Theme.surfaceVariantText
+                                    }
+                                    StyledText {
+                                        text: I18n.trFor("bongoCat", "Blink")
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        font.weight: root.enableBlinking ? Font.Bold : Font.Normal
+                                        color: root.enableBlinking ? Theme.onPrimaryContainer : Theme.surfaceText
+                                    }
+                                }
+
                                 MouseArea {
+                                    id: blinkArea
                                     anchors.fill: parent
+                                    hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
                                     onClicked: root.saveSetting("enableBlinking", !root.enableBlinking)
                                 }
                             }
-                            StyledText {
-                                text: "Blink"
-                                font.pixelSize: Theme.fontSizeSmall
-                                color: Theme.surfaceText
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
-                        }
 
-                        // Sound Toggle
-                        Row {
-                            spacing: Theme.spacingS
-                            DankIcon {
-                                name: root.soundEnabled ? "volume_up" : "volume_off"
-                                size: Theme.iconSize
-                                color: root.soundEnabled ? Theme.primary : Theme.surfaceText
-                                opacity: root.soundEnabled ? 1.0 : 0.4
+                            // Sound Toggle Pill
+                            DCard {
+                                id: soundBtn
+                                width: (parent.width - Theme.groupedListGap * 2) / 3
+                                height: 38
+                                pad: 0
+                                topLeftRadius: Theme.groupedListInnerRadius
+                                bottomLeftRadius: Theme.groupedListInnerRadius
+                                topRightRadius: Theme.groupedListInnerRadius
+                                bottomRightRadius: Theme.groupedListInnerRadius
+                                color: root.soundEnabled ? Theme.primaryContainer : (soundArea.containsMouse ? Theme.surfaceContainerHighest : Theme.surfaceContainerHigh)
+
+                                Row {
+                                    anchors.centerIn: parent
+                                    spacing: 4
+                                    DIcon {
+                                        name: root.soundEnabled ? "volume_up" : "volume_off"
+                                        size: 16
+                                        color: root.soundEnabled ? Theme.onPrimaryContainer : Theme.surfaceVariantText
+                                    }
+                                    StyledText {
+                                        text: I18n.trFor("bongoCat", "Sound")
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        font.weight: root.soundEnabled ? Font.Bold : Font.Normal
+                                        color: root.soundEnabled ? Theme.onPrimaryContainer : Theme.surfaceText
+                                    }
+                                }
+
                                 MouseArea {
+                                    id: soundArea
                                     anchors.fill: parent
+                                    hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
                                     onClicked: root.saveSetting("soundEnabled", !root.soundEnabled)
                                 }
                             }
-                            StyledText {
-                                text: "Sound"
-                                font.pixelSize: Theme.fontSizeSmall
-                                color: Theme.surfaceText
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
-                        }
 
-                        // Metrics Toggle
-                        Row {
-                            spacing: Theme.spacingS
-                            DankIcon {
-                                name: "speed"
-                                size: Theme.iconSize
-                                color: root.showMetrics ? Theme.primary : Theme.surfaceText
-                                opacity: root.showMetrics ? 1.0 : 0.4
+                            // Metrics Toggle Pill
+                            DCard {
+                                id: metricsBtn
+                                width: (parent.width - Theme.groupedListGap * 2) / 3
+                                height: 38
+                                pad: 0
+                                topRightRadius: Theme.groupedListOuterRadius
+                                bottomRightRadius: Theme.groupedListOuterRadius
+                                topLeftRadius: Theme.groupedListInnerRadius
+                                bottomLeftRadius: Theme.groupedListInnerRadius
+                                color: root.showMetrics ? Theme.primaryContainer : (metricsArea.containsMouse ? Theme.surfaceContainerHighest : Theme.surfaceContainerHigh)
+
+                                Row {
+                                    anchors.centerIn: parent
+                                    spacing: 4
+                                    DIcon {
+                                        name: "speed"
+                                        size: 16
+                                        color: root.showMetrics ? Theme.onPrimaryContainer : Theme.surfaceVariantText
+                                    }
+                                    StyledText {
+                                        text: I18n.trFor("bongoCat", "Stats")
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        font.weight: root.showMetrics ? Font.Bold : Font.Normal
+                                        color: root.showMetrics ? Theme.onPrimaryContainer : Theme.surfaceText
+                                    }
+                                }
+
                                 MouseArea {
+                                    id: metricsArea
                                     anchors.fill: parent
+                                    hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
                                     onClicked: root.saveSetting("showMetrics", !root.showMetrics)
                                 }
                             }
-                            StyledText {
-                                text: "Metrics"
-                                font.pixelSize: Theme.fontSizeSmall
-                                color: Theme.surfaceText
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
+                        }
+                    }
+
+                    // Hint Item
+                    HintSection {
+                        width: parent.width
+                        showHints: root.showHints
+
+                        HintItem {
+                            icon: "mouse"
+                            text: I18n.trFor("bongoCat", "Right-click bar icon to toggle sleep mode.")
                         }
                     }
                 }
-
-                HintSection {
-                    width: parent.width
-                    showHints: root.showHints
-
-                    HintItem {
-                        icon: "mouse"
-                        text: "Right-click bar icon to toggle sleep mode."
-                    }
-                }
-            }
         }
     }
 }

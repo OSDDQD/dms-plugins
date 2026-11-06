@@ -135,6 +135,10 @@ SettingsGroup {
 
     readonly property var otherCommands: [
         {
+            label: I18n.trFor("quickCapture", "Open %1 menu (Popout)").arg(I18n.trFor("quickCapture", "Quick Capture")),
+            command: "toggle"
+        },
+        {
             label: I18n.trFor("quickCapture", "Close"),
             command: "close"
         },

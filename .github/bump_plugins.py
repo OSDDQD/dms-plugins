@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -25,29 +26,60 @@ def clean_commit_msg(msg):
 
 author_cache = {}
 
-def get_author_credit(commit_hash, author_name, author_email):
+def get_author_credit(commit_hash, author_name, author_email, subject=""):
     if "hthienloc" in author_name.lower() or "huynhloc" in author_email.lower():
         return ""
 
     if author_email in author_cache:
         login = author_cache[author_email]
-        if login and login.lower() == "hthienloc":
-            return ""
-        return f" by @{login}" if login else f" by {author_name}"
+        if login:
+            if login.lower() == "hthienloc" or "bot" in login.lower() or login.lower() == "web-flow":
+                return ""
+            return f" by @{login}"
+        return f" by {author_name}"
 
+    # Fast path: extract GitHub username from noreply email
+    noreply_match = re.match(r"^(?:\d+\+)?([a-zA-Z0-9-]+)@users\.noreply\.github\.com$", author_email)
+    if noreply_match:
+        login = noreply_match.group(1)
+        author_cache[author_email] = login
+        if login.lower() == "hthienloc" or "bot" in login.lower() or login.lower() == "web-flow":
+            return ""
+        return f" by @{login}"
+
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    commit_endpoint = f"repos/{repo}/commits/{commit_hash}" if repo else f"repos/:owner/:repo/commits/{commit_hash}"
     try:
         res = subprocess.run(
-            ["gh", "api", f"repos/:owner/:repo/commits/{commit_hash}", "--jq", ".author.login"],
-            capture_output=True, text=True, timeout=5
+            ["gh", "api", commit_endpoint, "--jq", ".author.login"],
+            capture_output=True, text=True, timeout=10
         )
         login = res.stdout.strip()
         if login and login != "null":
             author_cache[author_email] = login
-            if login.lower() == "hthienloc":
+            if login.lower() == "hthienloc" or "bot" in login.lower() or login.lower() == "web-flow":
                 return ""
             return f" by @{login}"
     except Exception:
         pass
+
+    # Fallback: check PR number in subject
+    pr_match = re.search(r"\(#(\d+)\)", subject)
+    if pr_match:
+        pr_endpoint = f"repos/{repo}/pulls/{pr_match.group(1)}" if repo else f"repos/:owner/:repo/pulls/{pr_match.group(1)}"
+        try:
+            res = subprocess.run(
+                ["gh", "api", pr_endpoint, "--jq", ".user.login"],
+                capture_output=True, text=True, timeout=10
+            )
+            login = res.stdout.strip()
+            if login and login != "null":
+                author_cache[author_email] = login
+                if login.lower() == "hthienloc" or "bot" in login.lower() or login.lower() == "web-flow":
+                    return ""
+                return f" by @{login}"
+        except Exception:
+            pass
 
     author_cache[author_email] = None
     return f" by {author_name}"
@@ -153,7 +185,7 @@ for plugin_dir in sorted(Path(".").iterdir()):
     seen_commits = set()
     for h, author, email, subject in relevant_commits:
         cleaned = clean_commit_msg(subject)
-        credit = get_author_credit(h, author, email)
+        credit = get_author_credit(h, author, email, subject)
         entry = f"{cleaned}{credit}"
         if entry not in seen_commits:
             seen_commits.add(entry)

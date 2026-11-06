@@ -1,11 +1,11 @@
 # Emoji Picker
 
-A centered emoji picker for searching, copying, and pasting emoji in DankMaterialShell.
+A centered emoji picker for searching, copying, and pasting emoji in Dux Shell.
 
 ![screenshot](screenshot.png)
 ## Installation
 
-Open DMS Settings → Plugins, find **Emoji Picker**, then install and enable it.
+Open Dux Shell Settings → Plugins, find **Emoji Picker**, then install and enable it.
 
 ## Usage
 
@@ -37,6 +37,7 @@ dms ipc call emojiPicker close
 | Backspace / Delete in grid | Clear the search and return focus to the search bar when the queue is empty |
 | Typing anywhere | Focus search and type into it |
 | Down / Tab from search | Focus the first emoji |
+| Ctrl+Tab / Ctrl+Shift+Tab | Select the next / previous category |
 | Left / Right on categories | Move between categories |
 | Down from categories | Focus the first emoji |
 | Arrow keys | Navigate the emoji grid |
@@ -60,7 +61,7 @@ dms ipc call emojiPicker close
 
 ## Settings
 
-Open DMS Settings → Plugins → Emoji Picker to change:
+Open Dux Shell Settings → Plugins → Emoji Picker to change:
 
 - Default category
 - Picker size

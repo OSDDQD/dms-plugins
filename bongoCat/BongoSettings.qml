@@ -10,10 +10,12 @@ PluginSettings {
     SettingsCard {
         id: appearanceSection
         SectionTitle { 
-            text: I18n.tr("Appearance")
+            text: I18n.trFor("bongoCat", "Appearance")
             icon: "palette" 
-            showReset: catSizePercent.isDirty || catYOffset.isDirty || catColorMode.isDirty || catCustomColor.isDirty || enableBlinking.isDirty || classicIdle.isDirty
+            showReset: catSkin.isDirty || pixelSkinColor.isDirty || catSizePercent.isDirty || catYOffset.isDirty || catColorMode.isDirty || catCustomColor.isDirty || enableBlinking.isDirty || classicIdle.isDirty
             onResetClicked: {
+                catSkin.resetToDefault();
+                pixelSkinColor.resetToDefault();
                 catSizePercent.resetToDefault();
                 catYOffset.resetToDefault();
                 catColorMode.resetToDefault();
@@ -23,10 +25,24 @@ PluginSettings {
             }
         }
 
+        SelectionSettingPlus {
+            id: catSkin
+            settingKey: "catSkin"
+            label: I18n.trFor("bongoCat", "Cat Skin")
+            description: I18n.trFor("bongoCat", "Choose between the classic vector font cat or the pixel doodle sprite skin.")
+            defaultValue: "classic"
+            options: [
+                { label: I18n.trFor("bongoCat", "Classic (Vector)"), value: "classic" },
+                { label: I18n.trFor("bongoCat", "Pixel Doodle"), value: "pixel" }
+            ]
+        }
+
+        Separator {}
+
         SliderSettingPlus {
             id: catSizePercent
             settingKey: "catSizePercent"
-            label: I18n.tr("Cat Size")
+            label: I18n.trFor("bongoCat", "Cat Size")
             defaultValue: 100
             minimum: 50
             maximum: 200
@@ -40,7 +56,7 @@ PluginSettings {
         SliderSettingPlus {
             id: catYOffset
             settingKey: "catYOffset"
-            label: I18n.tr("Vertical Offset")
+            label: I18n.trFor("bongoCat", "Vertical Offset")
             defaultValue: 0
             minimum: -10
             maximum: 10
@@ -49,50 +65,94 @@ PluginSettings {
             rightLabel: "10px"
         }
 
-        Separator {}
-
-        SelectionSettingPlus {
-            id: catColorMode
-            settingKey: "catColorMode"
-            label: I18n.tr("Cat Color")
-            description: I18n.tr("Recolor the cat. Classic keeps the theme's default black and white, Primary follows the system accent, or pick a custom color.")
-            defaultValue: "classic"
-            options: [
-                { label: I18n.tr("Classic B/W"), value: "classic" },
-                { label: I18n.tr("Theme Primary"), value: "primary" },
-                { label: I18n.tr("Custom"), value: "custom" }
-            ]
-        }
-
         Column {
             width: parent.width
-            visible: catColorMode.value === "custom"
+            visible: catSkin.value === "pixel"
             height: visible ? implicitHeight : 0
             spacing: appearanceSection.spacing
 
             function loadValue() {
-                catCustomColor.loadValue();
+                pixelSkinColor.loadValue();
             }
 
             Separator {}
 
-            ColorSettingPlus {
-                id: catCustomColor
-                settingKey: "catCustomColor"
-                label: I18n.tr("Custom Color")
-                description: I18n.tr("Used when Cat Color is set to Custom.")
-                defaultValue: Theme.primary
+            SelectionSettingPlus {
+                id: pixelSkinColor
+                settingKey: "pixelSkinColor"
+                label: I18n.trFor("bongoCat", "Cat Color")
+                description: I18n.trFor("bongoCat", "Choose a color pattern for the Pixel Doodle skin.")
+                defaultValue: "white"
+                options: [
+                    { label: I18n.trFor("bongoCat", "Classic White"), value: "white" },
+                    { label: I18n.trFor("bongoCat", "Midnight Black"), value: "black" },
+                    { label: I18n.trFor("bongoCat", "Ginger Orange"), value: "orange" },
+                    { label: I18n.trFor("bongoCat", "Calico"), value: "calico" },
+                    { label: I18n.trFor("bongoCat", "Siamese"), value: "siamese" },
+                    { label: I18n.trFor("bongoCat", "Sakura Pink"), value: "pink" },
+                    { label: I18n.trFor("bongoCat", "Cyberpunk"), value: "cyberpunk" },
+                    { label: I18n.trFor("bongoCat", "Zombie"), value: "zombie" }
+                ]
             }
         }
 
-        Separator {}
+        Column {
+            width: parent.width
+            visible: catSkin.value !== "pixel"
+            height: visible ? implicitHeight : 0
+            spacing: appearanceSection.spacing
 
-        ToggleSettingPlus {
-            id: classicIdle
-            settingKey: "classicIdle"
-            label: I18n.tr("Classic Color on Idle")
-            description: I18n.tr("Return the cat to the classic black and white color when sleeping or idle.")
-            defaultValue: false
+            function loadValue() {
+                catColorMode.loadValue();
+                catCustomColor.loadValue();
+                classicIdle.loadValue();
+            }
+
+            Separator {}
+
+            SelectionSettingPlus {
+                id: catColorMode
+                settingKey: "catColorMode"
+                label: I18n.trFor("bongoCat", "Cat Color")
+                description: I18n.trFor("bongoCat", "Recolor the cat. Classic keeps the theme's default black and white, Primary follows the system accent, or pick a custom color.")
+                defaultValue: "classic"
+                options: [
+                    { label: I18n.trFor("bongoCat", "Classic B/W"), value: "classic" },
+                    { label: I18n.trFor("bongoCat", "Theme Primary"), value: "primary" },
+                    { label: I18n.trFor("bongoCat", "Custom"), value: "custom" }
+                ]
+            }
+
+            Column {
+                width: parent.width
+                visible: catColorMode.value === "custom"
+                height: visible ? implicitHeight : 0
+                spacing: appearanceSection.spacing
+
+                function loadValue() {
+                    catCustomColor.loadValue();
+                }
+
+                Separator {}
+
+                ColorSettingPlus {
+                    id: catCustomColor
+                    settingKey: "catCustomColor"
+                    label: I18n.trFor("bongoCat", "Custom Color")
+                    description: I18n.trFor("bongoCat", "Used when Cat Color is set to Custom.")
+                    defaultValue: Theme.primary
+                }
+            }
+
+            Separator {}
+
+            ToggleSettingPlus {
+                id: classicIdle
+                settingKey: "classicIdle"
+                label: I18n.trFor("bongoCat", "Classic Color on Idle")
+                description: I18n.trFor("bongoCat", "Return the cat to the classic black and white color when sleeping or idle.")
+                defaultValue: false
+            }
         }
 
         Separator {}
@@ -100,7 +160,7 @@ PluginSettings {
         ToggleSettingPlus {
             id: enableBlinking
             settingKey: "enableBlinking"
-            label: I18n.tr("Enable Blinking")
+            label: I18n.trFor("bongoCat", "Enable Blinking")
             defaultValue: true
         }
 
@@ -109,7 +169,7 @@ PluginSettings {
     SettingsCard {
         id: inputSection
         SectionTitle { 
-            text: I18n.tr("Input & Behavior")
+            text: I18n.trFor("bongoCat", "Input & Behavior")
             icon: "keyboard" 
             showReset: waitingTimeout.isDirty || pawHoldTime.isDirty || doubleSlam.isDirty || mouseEnabled.isDirty || showMetrics.isDirty || metricsInBar.isDirty || metricsWindow.isDirty
             onResetClicked: {
@@ -126,8 +186,8 @@ PluginSettings {
         SliderSettingPlus {
             id: waitingTimeout
             settingKey: "waitingTimeout"
-            label: I18n.tr("Sleep Timeout")
-            description: I18n.tr("Inactivity time before the cat falls asleep.")
+            label: I18n.trFor("bongoCat", "Sleep Timeout")
+            description: I18n.trFor("bongoCat", "Inactivity time before the cat falls asleep.")
             minimum: 1
             maximum: 10
             unit: "s"
@@ -141,8 +201,8 @@ PluginSettings {
         SliderSettingPlus {
             id: pawHoldTime
             settingKey: "pawHoldTime"
-            label: I18n.tr("Paw Hold Duration")
-            description: I18n.tr("How long the paws stay down after a key press (0 for instant).")
+            label: I18n.trFor("bongoCat", "Paw Hold Duration")
+            description: I18n.trFor("bongoCat", "How long the paws stay down after a key press (0 for instant).")
             minimum: 0
             maximum: 100
             unit: "ms"
@@ -156,8 +216,8 @@ PluginSettings {
         ToggleSettingPlus {
             id: doubleSlam
             settingKey: "doubleSlam"
-            label: I18n.tr("Space/Enter Double Slam")
-            description: I18n.tr("Pressing Space or Enter triggers both paws to slam the table.")
+            label: I18n.trFor("bongoCat", "Space/Enter Double Slam")
+            description: I18n.trFor("bongoCat", "Pressing Space or Enter triggers both paws to slam the table.")
             defaultValue: true
         }
 
@@ -166,8 +226,8 @@ PluginSettings {
         ToggleSettingPlus {
             id: mouseEnabled
             settingKey: "mouseEnabled"
-            label: I18n.tr("Mouse Interaction")
-            description: I18n.tr("Paws react to mouse input: left and right click hold the matching paw, other buttons slam both, scrolling drums with alternating paws.")
+            label: I18n.trFor("bongoCat", "Mouse Interaction")
+            description: I18n.trFor("bongoCat", "Paws react to mouse input: left and right click hold the matching paw, other buttons slam both, scrolling drums with alternating paws.")
             defaultValue: false
         }
 
@@ -176,8 +236,8 @@ PluginSettings {
         ToggleSettingPlus {
             id: showMetrics
             settingKey: "showMetrics"
-            label: I18n.tr("Show Typing Metrics")
-            description: I18n.tr("Display live typing speed (WPM) and correction rate in the popout. Only keystroke timing is counted; no key contents are stored.")
+            label: I18n.trFor("bongoCat", "Show Typing Metrics")
+            description: I18n.trFor("bongoCat", "Display live typing speed (WPM) and correction rate in the popout. Only keystroke timing is counted; no key contents are stored.")
             defaultValue: false
         }
 
@@ -197,8 +257,8 @@ PluginSettings {
             ToggleSettingPlus {
                 id: metricsInBar
                 settingKey: "metricsInBar"
-                label: I18n.tr("Show Metrics in Bar")
-                description: I18n.tr("Also show WPM and correction rate next to the cat in the bar.")
+                label: I18n.trFor("bongoCat", "Show Metrics in Bar")
+                description: I18n.trFor("bongoCat", "Also show WPM and correction rate next to the cat in the bar.")
                 defaultValue: false
             }
 
@@ -207,8 +267,8 @@ PluginSettings {
             SliderSettingPlus {
                 id: metricsWindow
                 settingKey: "metricsWindowSec"
-                label: I18n.tr("Measurement Window")
-                description: I18n.tr("Time span the speed and correction rate are averaged over.")
+                label: I18n.trFor("bongoCat", "Measurement Window")
+                description: I18n.trFor("bongoCat", "Time span the speed and correction rate are averaged over.")
                 minimum: 5
                 maximum: 120
                 unit: "s"
@@ -222,7 +282,7 @@ PluginSettings {
     SettingsCard {
         id: soundSection
         SectionTitle {
-            text: I18n.tr("Sounds")
+            text: I18n.trFor("bongoCat", "Sounds")
             icon: "volume_up"
             showReset: soundEnabled.isDirty || soundProfile.isDirty || soundVolume.isDirty || soundOnMouse.isDirty
             onResetClicked: {
@@ -236,8 +296,8 @@ PluginSettings {
         ToggleSettingPlus {
             id: soundEnabled
             settingKey: "soundEnabled"
-            label: I18n.tr("Enable Sounds")
-            description: I18n.tr("Play a soft key-click sound as you type.")
+            label: I18n.trFor("bongoCat", "Enable Sounds")
+            description: I18n.trFor("bongoCat", "Play a soft key-click sound as you type.")
             defaultValue: false
         }
 
@@ -258,12 +318,12 @@ PluginSettings {
             SelectionSettingPlus {
                 id: soundProfile
                 settingKey: "soundProfile"
-                label: I18n.tr("Sound Profile")
-                description: I18n.tr("Choose the type of key-click sound.")
+                label: I18n.trFor("bongoCat", "Sound Profile")
+                description: I18n.trFor("bongoCat", "Choose the type of key-click sound.")
                 defaultValue: "bongo"
                 options: [
-                    { label: I18n.tr("Bongo"), value: "bongo" },
-                    { label: I18n.tr("Pop"), value: "pop" }
+                    { label: I18n.trFor("bongoCat", "Bongo"), value: "bongo" },
+                    { label: I18n.trFor("bongoCat", "Pop"), value: "pop" }
                 ]
             }
 
@@ -272,7 +332,7 @@ PluginSettings {
             SliderSettingPlus {
                 id: soundVolume
                 settingKey: "soundVolume"
-                label: I18n.tr("Volume")
+                label: I18n.trFor("bongoCat", "Volume")
                 minimum: 0
                 maximum: 100
                 unit: "%"
@@ -287,18 +347,18 @@ PluginSettings {
                 id: soundOnMouse
                 visible: mouseEnabled.value
                 settingKey: "soundOnMouse"
-                label: I18n.tr("Mouse Clicks")
-                description: I18n.tr("Also play a click on mouse buttons.")
+                label: I18n.trFor("bongoCat", "Mouse Clicks")
+                description: I18n.trFor("bongoCat", "Also play a click on mouse buttons.")
                 defaultValue: false
             }
         }
     }
 
     SettingsCard {
-        SectionTitle { text: I18n.tr("Setup"); icon: "build" }
+        SectionTitle { text: I18n.trFor("bongoCat", "Setup"); icon: "build" }
 
         InfoText {
-            text: I18n.tr("Add your user to the 'input' group to detect keyboard activity:")
+            text: I18n.trFor("bongoCat", "Add your user to the 'input' group to detect keyboard activity:")
         }
 
         Column {
@@ -307,7 +367,7 @@ PluginSettings {
 
             Repeater {
                 model: [
-                    { cmd: "sudo usermod -aG input $USER", label: I18n.tr("Add to input group") }
+                    { cmd: "sudo usermod -aG input $USER", label: I18n.trFor("bongoCat", "Add to input group") }
                 ]
 
                 delegate: CopyBox {
@@ -318,16 +378,52 @@ PluginSettings {
         }
 
         InfoText {
-            text: I18n.tr("After running the command, logout and login again for changes to take effect.")
+            text: I18n.trFor("bongoCat", "After running the command, logout and login again for changes to take effect.")
             color: Theme.primary
             font.italic: true
         }
     }
 
     SettingsCard {
+        id: desktopSection
+        SectionTitle {
+            text: I18n.trFor("bongoCat", "Desktop Widget")
+            icon: "desktop_windows"
+            showReset: desktopBackgroundOpacity.isDirty || desktopShowMetrics.isDirty
+            onResetClicked: {
+                desktopBackgroundOpacity.resetToDefault();
+                desktopShowMetrics.resetToDefault();
+            }
+        }
+
+        SliderSettingPlus {
+            id: desktopBackgroundOpacity
+            settingKey: "desktopBackgroundOpacity"
+            label: I18n.trFor("bongoCat", "Background Opacity")
+            description: I18n.trFor("bongoCat", "Adjust transparency of the desktop widget card.")
+            defaultValue: 0
+            minimum: 0
+            maximum: 100
+            unit: "%"
+            leftLabel: "0%"
+            rightLabel: "100%"
+        }
+
+        Separator {}
+
+        ToggleSettingPlus {
+            id: desktopShowMetrics
+            settingKey: "desktopShowMetrics"
+            label: I18n.trFor("bongoCat", "Show Typing Metrics")
+            description: I18n.trFor("bongoCat", "Display live WPM and accuracy underneath the cat on the desktop.")
+            defaultValue: false
+        }
+    }
+
+    SettingsCard {
         id: behaviorSection
         SectionTitle { 
-            text: I18n.tr("Behavior")
+            text: I18n.trFor("bongoCat", "Behavior")
             icon: "settings" 
             showReset: showHints.isDirty
             onResetClicked: {
@@ -338,7 +434,7 @@ PluginSettings {
         ToggleSettingPlus {
             id: showHints
             settingKey: "showHints"
-            label: I18n.tr("Show Hints")
+            label: I18n.trFor("bongoCat", "Show Hints")
             defaultValue: true
         }
     }
@@ -346,7 +442,7 @@ PluginSettings {
     SettingsCard {
         SectionTitle { 
             id: usageTitle
-            text: I18n.tr("Usage Guide")
+            text: I18n.trFor("bongoCat", "Usage Guide")
             icon: "menu_book" 
             collapsible: true
             settingKey: "usageGuideExpanded"
@@ -355,9 +451,9 @@ PluginSettings {
         UsageGuide {
             expanded: usageTitle.isExpanded
             items: [
-                I18n.tr("<b>Left-click</b> the cat to open the settings popout."),
-                I18n.tr("<b>Right-click</b> the cat to manually toggle <b>Sleep Mode</b>."),
-                I18n.tr("The cat will automatically tap its paws as you type.")
+                I18n.trFor("bongoCat", "<b>Left-click</b> the cat to open the settings popout."),
+                I18n.trFor("bongoCat", "<b>Right-click</b> the cat to manually toggle <b>Sleep Mode</b>."),
+                I18n.trFor("bongoCat", "The cat will automatically tap its paws as you type.")
             ]
         }
     }
@@ -365,7 +461,7 @@ PluginSettings {
     SettingsCard {
         SectionTitle {
             id: creditsTitle
-            text: I18n.tr("Credits")
+            text: I18n.trFor("bongoCat", "Credits")
             icon: "favorite"
             collapsible: true
             settingKey: "creditsExpanded"
@@ -377,11 +473,16 @@ PluginSettings {
                 {
                     author: "@StrayRogue",
                     url: "https://x.com/StrayRogue",
-                    role: I18n.tr("Creator of the original Bongo Cat artwork."),
+                    role: I18n.trFor("bongoCat", "Creator of the original Bongo Cat artwork."),
                     icon: "brush"
+                },
+                {
+                    author: "StrawberryMatchaArt",
+                    url: "https://www.etsy.com/shop/StrawberryMatchaArt",
+                    role: I18n.trFor("bongoCat", "Creator of the Pixel Doodle Bongo Cat artwork."),
+                    icon: "palette"
                 }
             ]
         }
     }
 }
-

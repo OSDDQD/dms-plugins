@@ -3,7 +3,6 @@ import QtQuick.Controls
 import Quickshell
 import qs.Common
 import qs.DCommon.Widgets
-import qs.Widgets
 import qs.Services
 import "../popovers"
 

@@ -1,7 +1,6 @@
 import QtQuick
 import qs.Common
 import qs.DCommon.Widgets
-import qs.Widgets
 import "../popovers"
 import "../core/Constants.js" as Constants
 

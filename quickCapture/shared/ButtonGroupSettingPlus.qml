@@ -1,7 +1,6 @@
 import QtQuick
 import qs.Common
 import qs.DCommon.Widgets
-import qs.Widgets
 
 Item {
     id: root
@@ -100,7 +99,7 @@ Item {
 
     Column {
         id: layout
-        anchors.fill: parent
+        width: parent.width
         spacing: Theme.spacingXS
 
         // ── Label Row ─────────────────────────────────────────────────────────

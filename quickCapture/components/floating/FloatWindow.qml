@@ -5,7 +5,6 @@ import Quickshell.Wayland
 import qs.Common
 import qs.Services
 import qs.DCommon.Widgets
-import qs.Widgets
 import "../core/Helpers.js" as Helpers
 import "../core/Defaults.js" as Defaults
 

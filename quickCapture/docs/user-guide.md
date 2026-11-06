@@ -4,18 +4,20 @@
 
 | Action | Result |
 | --- | --- |
-| **Left Click** | Open the widget popout |
+| **Left Click** | Open the widget popout / attached dock panel |
 | **Middle Click** | Region capture |
 | **Right Click** | Paste from clipboard |
 | **Drop Image** | Drag an image onto the icon to annotate |
 | **<kbd>Print</kbd>** | Capture using the default mode |
 
-1. Trigger a capture from the bar icon, Control Center, or <kbd>Print</kbd>.
+1. Trigger a capture from the bar or dock icon, Control Center, or <kbd>Print</kbd>.
 2. Drag to select an area.
    Drag one of the four corner handles to resize the current selection.
    Hold <kbd>Ctrl</kbd> and drag with the left mouse button to move the current selection without resizing it.
 3. Annotate with the toolbar, shortcuts, or radial menus.
 4. Press <kbd>Enter</kbd> to finish or <kbd>Esc</kbd> to discard.
+
+By default, screenshots are saved to the XDG Pictures directory under `Screenshots`, and recordings to the XDG Videos directory under `Recordings`. You can choose different folders in the Save and Recording settings.
 
 ### Scrolling Capture
 

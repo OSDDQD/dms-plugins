@@ -3,7 +3,7 @@
     "%1 Font": "文本字体"
   },
   "%1 is not installed": {
-    "%1 is not installed": ""
+    "%1 is not installed": "未安装 %1"
   },
   "1 Connecting Line": {
     "1 Connecting Line": "1 条连接线"
@@ -161,8 +161,17 @@
   "Capture Actions": {
     "Capture Actions": "截图操作"
   },
+  "Capture Fullscreen": {
+    "Capture Fullscreen": ""
+  },
   "Capture Options": {
     "Capture Options": "截图选项"
+  },
+  "Capture Region": {
+    "Capture Region": ""
+  },
+  "Capture Window": {
+    "Capture Window": ""
   },
   "Capturing...": {
     "Capturing...": "正在截图..."
@@ -178,6 +187,9 @@
   },
   "Choose the editor shape for portrait or landscape screens.": {
     "Choose the editor shape for portrait or landscape screens.": "为竖屏或横屏屏幕选择编辑器形状。"
+  },
+  "Choose where the recording status and controls appear: Auto (DankBar if present, otherwise Floating Pill), DankBar, Floating Pill, or Both.": {
+    "Choose where the recording status and controls appear: Auto (DankBar if present, otherwise Floating Pill), DankBar, Floating Pill, or Both.": ""
   },
   "Choose whether the editor opens as a modal overlay or a movable floating window.": {
     "Choose whether the editor opens as a modal overlay or a movable floating window.": "选择编辑器以模态覆盖层还是可移动的悬浮窗口打开。"
@@ -269,6 +281,9 @@
   "Custom": {
     "Custom": "自定义"
   },
+  "DankBar": {
+    "DankBar": "DankBar"
+  },
   "Dark": {
     "Dark": "深色"
   },
@@ -351,19 +366,19 @@
     "Failed to convert recording to GIF.": "录像转换为 GIF 失败。"
   },
   "Failed to copy screenshot": {
-    "Failed to copy screenshot": ""
+    "Failed to copy screenshot": "无法复制截图"
   },
   "Failed to create float window.": {
-    "Failed to create float window.": ""
+    "Failed to create float window.": "无法创建悬浮窗。"
   },
   "Failed to download image.": {
-    "Failed to download image.": ""
+    "Failed to download image.": "无法下载图像。"
   },
   "Failed to generate blurred background image": {
     "Failed to generate blurred background image": "生成模糊背景图像失败"
   },
   "Failed to load image: %1": {
-    "Failed to load image: %1": ""
+    "Failed to load image: %1": "无法加载图像：%1"
   },
   "Failed to save screenshot": {
     "Failed to save screenshot": "保存截图失败"
@@ -392,6 +407,9 @@
   "Floating": {
     "Floating": "浮动"
   },
+  "Floating Pill": {
+    "Floating Pill": ""
+  },
   "Floating window and continuous editing workflow.": {
     "Floating window and continuous editing workflow.": ""
   },
@@ -399,7 +417,7 @@
     "Focused Screen": "聚焦屏幕"
   },
   "Folder": {
-    "Folder": ""
+    "Folder": "文件夹"
   },
   "Font Size": {
     "Font Size": "字体大小"
@@ -413,14 +431,14 @@
   "Format tokens: {user} (Username), \\n (New Line), %Y (Year), %y (2-digit year), %m (Month), %d (Day), %H (Hour), %M (Minute), %S (Second)": {
     "Format tokens: {user} (Username), \\n (New Line), %Y (Year), %y (2-digit year), %m (Month), %d (Day), %H (Hour), %M (Minute), %S (Second)": ""
   },
-  "Format: %1 (%2 FPS)": {
-    "Format: %1 (%2 FPS)": ""
-  },
   "Framerate": {
     "Framerate": "帧率"
   },
   "Free": {
     "Free": "自由"
+  },
+  "From Clipboard": {
+    "From Clipboard": ""
   },
   "Fullscreen": {
     "Fullscreen": "全屏"
@@ -452,14 +470,8 @@
   "Hide Annotations": {
     "Hide Annotations": ""
   },
-  "Hide Control Center": {
-    "Hide Control Center": "隐藏控制中心"
-  },
-  "Hide Control Center by Default": {
-    "Hide Control Center by Default": "默认隐藏控制中心"
-  },
   "Hide Control Center on Capture": {
-    "Hide Control Center on Capture": ""
+    "Hide Control Center on Capture": "在捕获中隐藏控制中心"
   },
   "High": {
     "High": "高"
@@ -509,9 +521,6 @@
   "Initial Width": {
     "Initial Width": "初始宽度"
   },
-  "Initial state for the Control Center toggle.": {
-    "Initial state for the Control Center toggle.": "控制中心开关的初始状态。"
-  },
   "Inline": {
     "Inline": ""
   },
@@ -528,7 +537,7 @@
     "Invalid or corrupted image file.": ""
   },
   "Italic": {
-    "Italic": ""
+    "Italic": "斜体"
   },
   "JPEG Quality": {
     "JPEG Quality": "JPEG 质量"
@@ -602,6 +611,9 @@
   "Modal": {
     "Modal": "模态"
   },
+  "More Options": {
+    "More Options": ""
+  },
   "More Tools": {
     "More Tools": "更多工具"
   },
@@ -615,7 +627,10 @@
     "No Image Specified": "未指定图像"
   },
   "No QR code detected": {
-    "No QR code detected": ""
+    "No QR code detected": "未检测到二维码"
+  },
+  "No Tesseract language packs found. Ensure tesseract is installed and has language data packages.": {
+    "No Tesseract language packs found. Ensure tesseract is installed and has language data packages.": ""
   },
   "No output available": {
     "No output available": "没有可用输出"
@@ -627,7 +642,7 @@
     "No supported images found": "未找到受支持的图像"
   },
   "No text detected": {
-    "No text detected": ""
+    "No text detected": "未检测到文本"
   },
   "No valid image file or URL found in drop.": {
     "No valid image file or URL found in drop.": ""
@@ -654,13 +669,16 @@
     "OCR Result": "OCR 结果"
   },
   "OCR failed": {
-    "OCR failed": ""
+    "OCR failed": "OCR 失败"
   },
   "Off": {
     "Off": "关闭"
   },
   "Off (Hidden)": {
-    "Off (Hidden)": ""
+    "Off (Hidden)": "关闭（隐藏）"
+  },
+  "On": {
+    "On": "开启"
   },
   "Opacity": {
     "Opacity": "不透明度"
@@ -671,11 +689,11 @@
   "Open %1 menu (Popout)": {
     "Open %1 menu (Popout)": ""
   },
-  "Open Image": {
-    "Open Image": ""
+  "Open Captures Folder": {
+    "Open Captures Folder": ""
   },
-  "Open folder": {
-    "Open folder": "打开文件夹"
+  "Open Image": {
+    "Open Image": "打开图像"
   },
   "Outline Variant": {
     "Outline Variant": "边框变体"
@@ -729,7 +747,7 @@
     "Pixelate Intensity": "像素化强度"
   },
   "Popup": {
-    "Popup": ""
+    "Popup": "弹出"
   },
   "Portrait": {
     "Portrait": "纵向"
@@ -741,19 +759,19 @@
     "Post-Capture Notification": "截图后通知"
   },
   "Preset": {
-    "Preset": ""
+    "Preset": "预设"
   },
   "Preset %1": {
     "Preset %1": "预设 %1"
   },
   "Presets": {
-    "Presets": ""
+    "Presets": "预设"
   },
   "Preview": {
     "Preview": "预览"
   },
   "Preview Quality": {
-    "Preview Quality": ""
+    "Preview Quality": "预览质量"
   },
   "Primary": {
     "Primary": "主色"
@@ -765,7 +783,7 @@
     "QR Result": "二维码结果"
   },
   "QR scan failed": {
-    "QR scan failed": ""
+    "QR scan failed": "二维码扫描失败"
   },
   "Quality": {
     "Quality": "质量"
@@ -794,8 +812,20 @@
   "Recent Edits": {
     "Recent Edits": "最近的编辑"
   },
+  "Recent History": {
+    "Recent History": ""
+  },
+  "Record Fullscreen": {
+    "Record Fullscreen": ""
+  },
   "Record Microphone": {
     "Record Microphone": "录制麦克风"
+  },
+  "Record Region": {
+    "Record Region": ""
+  },
+  "Record Screen": {
+    "Record Screen": ""
   },
   "Record System Audio": {
     "Record System Audio": "录制系统音频"
@@ -810,7 +840,10 @@
     "Recording Folder": "录制文件夹"
   },
   "Recording Paused": {
-    "Recording Paused": ""
+    "Recording Paused": "录制已暂停"
+  },
+  "Recording Status Location": {
+    "Recording Status Location": ""
   },
   "Recording ended with error code %1.": {
     "Recording ended with error code %1.": "录制以错误代码 %1 结束。"
@@ -876,7 +909,7 @@
     "Save": "保存"
   },
   "Save As": {
-    "Save As": ""
+    "Save As": "保存为"
   },
   "Save Screenshot As": {
     "Save Screenshot As": "另存截图"
@@ -903,7 +936,7 @@
     "Screen recording timed out or was cancelled.": "屏幕录制超时或已取消。"
   },
   "Screenshot": {
-    "Screenshot": ""
+    "Screenshot": "截图"
   },
   "Screenshot Copied": {
     "Screenshot Copied": "截图已复制"
@@ -947,20 +980,20 @@
   "Select Color Slots %1": {
     "Select Color Slots %1": ""
   },
+  "Select Image File": {
+    "Select Image File": ""
+  },
   "Select Image to Annotate": {
     "Select Image to Annotate": "选择要标注的图像"
   },
-  "Select screen recording backend. Auto attempts GPU first and falls back to CPU (%1).": {
-    "Select screen recording backend. Auto attempts GPU first and falls back to CPU (%1).": "选择屏幕录制后端。自动模式优先尝试 GPU，失败时回退至 CPU (%1)。"
+  "Select one or more installed Tesseract language packs for OCR text recognition.": {
+    "Select one or more installed Tesseract language packs for OCR text recognition.": ""
   },
   "Select screen recording backend. Auto attempts GPU first and falls back to CPU (%1). Note: %1 does not support pausing.": {
     "Select screen recording backend. Auto attempts GPU first and falls back to CPU (%1). Note: %1 does not support pausing.": ""
   },
   "Selected Tool / Action": {
     "Selected Tool / Action": "所选工具 / 操作"
-  },
-  "Settings": {
-    "Settings": "设置"
   },
   "Shadow Strength": {
     "Shadow Strength": "默认阴影强度"
@@ -973,9 +1006,6 @@
   },
   "Show Annotations": {
     "Show Annotations": ""
-  },
-  "Show Control Center": {
-    "Show Control Center": "显示控制中心"
   },
   "Show Keyboard Shortcut Hints": {
     "Show Keyboard Shortcut Hints": "显示快捷键提示"
@@ -1048,6 +1078,9 @@
   },
   "Stop & Save": {
     "Stop & Save": "停止并保存"
+  },
+  "Stop Recording": {
+    "Stop Recording": ""
   },
   "Surface Container Highest": {
     "Surface Container Highest": "Surface 容器最高层"
@@ -1137,7 +1170,7 @@
     "Type note...": "输入备注..."
   },
   "Underline": {
-    "Underline": ""
+    "Underline": "下划线"
   },
   "Undo": {
     "Undo": "撤销"
@@ -1161,7 +1194,7 @@
     "Very High": "非常高"
   },
   "Video": {
-    "Video": ""
+    "Video": "视频"
   },
   "Video Codec": {
     "Video Codec": "视频编解码器"

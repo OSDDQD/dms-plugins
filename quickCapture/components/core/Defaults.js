@@ -27,6 +27,7 @@ const values = {
     recordMic: false,
     micDevice: "default_input",
     audioCodec: "opus",
+    recordingStatusLocation: "auto",
     showPillBorder: false,
     blinkRecordDot: true,
     showRegionBorder: true,
@@ -55,6 +56,7 @@ const values = {
     defaultToolMode: "preset",
     defaultPresetIndex: "0",
     defaultTool: "pen",
+    ocrLanguage: "eng",
     textFontFamily: "system",
     stampFontFamily: "system",
     textBold: false,
@@ -108,7 +110,6 @@ const values = {
     radialHoverTrigger: true,
     radialHoverDelay: 200,
     radialMenuOpacity: 100,
-    ocrLanguages: "eng",
     uploadProvider: "0x0",
     upload0x0Url: "https://0x0.st",
     upload0x0Token: "",
@@ -123,7 +124,7 @@ const values = {
     uploadRecordings: false
 };
 
-function get(data, key) {
+function get(data, key, fallback) {
     const value = data ? data[key] : undefined;
-    return value === undefined || value === null ? values[key] : value;
+    return value === undefined || value === null ? (fallback === undefined ? values[key] : fallback) : value;
 }

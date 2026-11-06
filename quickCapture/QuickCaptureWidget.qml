@@ -2,6 +2,7 @@ import QtQuick
 import qs.Common
 import qs.Modules.Plugins
 import qs.Services
+import qs.Widgets
 import "./components/bar"
 import "./components/core/Defaults.js" as Defaults
 
@@ -22,28 +23,26 @@ PluginComponent {
     readonly property string durationText: recorder ? recorder.formatDuration(recorder.recordingSeconds) : "00:00"
     readonly property alias config: captureConfig
 
-    property var pendingPopoutAction: null
+    property var activePopout: null
 
     CaptureConfig {
         id: captureConfig
         pluginData: root.pluginData
     }
 
-    Timer {
-        id: popoutCloseTimer
-        interval: Math.max(50, Theme.popoutAnimationDuration + 50)
-        onTriggered: {
-            const action = root.pendingPopoutAction;
-            root.pendingPopoutAction = null;
-            if (action)
-                action();
+    function closePopoutImmediately() {
+        if (root.attachedActive)
+            root.surfaceContext?.dismissExpansion?.();
+        if (root.activePopout && typeof root.activePopout.instantClose === "function") {
+            root.activePopout.instantClose();
+        } else {
+            root.closePopout();
         }
     }
 
     function runAfterPopoutClosed(action) {
-        root.pendingPopoutAction = action;
-        root.closePopout();
-        popoutCloseTimer.restart();
+        closePopoutImmediately();
+        Qt.callLater(action);
     }
 
     function setWidgetMode(mode) {
@@ -61,12 +60,13 @@ PluginComponent {
         root.daemon.capture(Defaults.get(pluginData, settingKey), "edit", "", fromControlCenter);
     }
 
-    popoutWidth: 260
-    popoutHeight: root.widgetMode === "video" ? (root.isRecording ? 320 : 290) : 445 + Math.min((root.daemon?.outputs ?? []).length, 5) * 32
+    popoutWidth: 280
+    popoutHeight: root.widgetMode === "video" ? (root.isRecording ? 320 : 310) : 465 + Math.min((root.daemon?.outputs ?? []).length, 5) * 38
 
     popoutContent: Component {
         CaptureMenu {
             widget: root
+            onParentPopoutChanged: root.activePopout = parentPopout
         }
     }
 
@@ -83,9 +83,175 @@ PluginComponent {
         }
     }
 
-    pillRightClickAction: function () {
+    function buildDockMenuItems() {
+        const items = [
+            {
+                type: "item",
+                icon: "screenshot_region",
+                text: I18n.trFor("quickCapture", "Capture Region"),
+                action: () => root.runAfterDockMenuClosed(() => root.daemon?.capture("region", "edit", "", false))
+            },
+            {
+                type: "item",
+                icon: "fullscreen",
+                text: I18n.trFor("quickCapture", "Capture Fullscreen"),
+                action: () => root.runAfterDockMenuClosed(() => root.daemon?.capture("full", "edit", "", false))
+            },
+            {
+                type: "item",
+                icon: "crop_square",
+                text: I18n.trFor("quickCapture", "Capture Window"),
+                action: () => root.runAfterDockMenuClosed(() => root.daemon?.capture("window", "edit", "", false))
+            },
+            {
+                type: "item",
+                icon: "restart_alt",
+                text: I18n.trFor("quickCapture", "Last Region"),
+                action: () => root.runAfterDockMenuClosed(() => root.daemon?.capture("last", "edit", "", false))
+            },
+            {
+                type: "item",
+                icon: "history_toggle_off",
+                text: I18n.trFor("quickCapture", "Scrolling"),
+                action: () => root.runAfterDockMenuClosed(() => root.daemon?.capture("scroll", "edit", "", false))
+            },
+            {
+                type: "separator"
+            },
+            {
+                type: "item",
+                icon: "content_paste",
+                text: I18n.trFor("quickCapture", "From Clipboard"),
+                action: () => root.runAfterDockMenuClosed(() => root.daemon?.fromClipboard("edit"))
+            },
+            {
+                type: "item",
+                icon: "folder_open",
+                text: I18n.trFor("quickCapture", "Select Image File"),
+                action: () => root.runAfterDockMenuClosed(() => root.daemon?.selectImage("edit", false))
+            },
+            {
+                type: "separator"
+            },
+            {
+                type: "item",
+                icon: root.isRecording ? "stop_circle" : "videocam",
+                text: root.isRecording ? I18n.trFor("quickCapture", "Stop Recording") : I18n.trFor("quickCapture", "Record Region"),
+                action: () => {
+                    if (root.isRecording)
+                        root.recorder?.stopRecording();
+                    else
+                        root.runAfterDockMenuClosed(() => root.daemon?.record("region", "", false));
+                }
+            },
+            {
+                type: "item",
+                icon: "video_settings",
+                text: I18n.trFor("quickCapture", "Record Fullscreen"),
+                action: () => root.runAfterDockMenuClosed(() => root.daemon?.record("screen", "", false))
+            },
+            {
+                type: "separator"
+            },
+            {
+                type: "item",
+                icon: "folder",
+                text: I18n.trFor("quickCapture", "Open Captures Folder"),
+                action: () => root.daemon?.openFolder(root.widgetMode === "video" ? "video" : "photo")
+            },
+            {
+                type: "item",
+                icon: "history",
+                text: I18n.trFor("quickCapture", "Recent History"),
+                action: () => root.runAfterDockMenuClosed(() => root.daemon?.showHistoryCarousel())
+            }
+        ];
+        return items;
+    }
+
+    property var pendingDockMenuAction: null
+
+    function runAfterDockMenuClosed(action) {
+        root.pendingDockMenuAction = action;
+        if (!dockContextMenu.renderActive) {
+            Qt.callLater(() => {
+                const act = root.pendingDockMenuAction;
+                root.pendingDockMenuAction = null;
+                if (act)
+                    act();
+            });
+        }
+    }
+
+    DContextMenu {
+        id: dockContextMenu
+        layerNamespace: "dms:quickcapture-context-menu"
+        menuItems: []
+
+        onRenderActiveChanged: {
+            if (!renderActive && root.pendingDockMenuAction) {
+                // Wait for the next event loop tick after renderActive drops to false
+                // ensuring the Wayland layer surface is completely unmapped before capture.
+                Qt.callLater(() => {
+                    const action = root.pendingDockMenuAction;
+                    root.pendingDockMenuAction = null;
+                    if (action)
+                        action();
+                });
+            }
+        }
+    }
+
+    readonly property bool isDockWidget: root.surfaceContext?.kind === "dock"
+    pillClickAction: isDockWidget ? function () {
         if (!root.daemon)
             return;
+        if (root.isRecording) {
+            root.recorder?.stopRecording();
+            return;
+        }
+        if (root.widgetMode === "video") {
+            root.daemon.record("region", "", false);
+            return;
+        }
+        root.daemon.capture("region", "edit", "", false);
+    } : null
+
+    pillRightClickAction: function (x, y, width, section, screen) {
+        if (!root.daemon)
+            return;
+        if (root.surfaceContext?.kind === "dock") {
+            if (root.isRecording) {
+                root.recorder?.cancelRecording();
+                return;
+            }
+            const anchor = root.pillAnchor();
+            if (anchor) {
+                const edge = root.axis?.edge ?? "bottom";
+                const offset = Theme.spacingM;
+                let targetX = anchor.trigger.x + (root.isVertical ? 0 : anchor.trigger.width / 2);
+                let targetY = anchor.trigger.y + (root.isVertical ? anchor.trigger.width / 2 : 0);
+
+                if (edge === "bottom")
+                    targetY -= offset;
+                else if (edge === "top")
+                    targetY += offset;
+                else if (edge === "right")
+                    targetX -= offset;
+                else if (edge === "left")
+                    targetX += offset;
+
+                dockContextMenu.menuItems = root.buildDockMenuItems();
+                dockContextMenu.openFromBar({
+                    screen: anchor.screen,
+                    x: targetX,
+                    y: targetY,
+                    isVertical: root.isVertical,
+                    edge: edge
+                });
+                return;
+            }
+        }
         if (root.isRecording) {
             root.recorder.cancelRecording();
             return;
@@ -94,7 +260,7 @@ PluginComponent {
     }
 
     ccWidgetIcon: root.isRecording ? "videocam" : "screenshot_region"
-    ccWidgetPrimaryText: root.isRecording ? I18n.trFor("quickCapture", "Recording...") : (root.widgetMode === "video" ? I18n.trFor("quickCapture", "Screen Recording") : I18n.trFor("quickCapture", "Quick Capture"))
+    ccWidgetPrimaryText: I18n.trFor("quickCapture", "Quick Capture")
     ccWidgetSecondaryText: {
         if (root.isRecording)
             return root.durationText;
@@ -110,7 +276,7 @@ PluginComponent {
         }
         root.runDefaultAction("middleClickAction", true);
     }
-    ccDetailHeight: 245
+    ccDetailHeight: 256
 
     ccDetailContent: Component {
         CaptureDetail {

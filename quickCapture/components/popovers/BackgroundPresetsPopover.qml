@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Controls
 import qs.Common
 import qs.DCommon.Widgets
-import qs.Widgets
 import "../core/Constants.js" as Constants
 
 PopoverSurface {

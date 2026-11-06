@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import qs.Common
+import qs.DCommon.Widgets
 import qs.Modules.Plugins
 import qs.Services
 import qs.Widgets
@@ -348,7 +349,7 @@ PluginComponent {
                 spacing: (root._pillHasIcon && !root._pillIsIconOnly && !root._pillIsPulse) ? Theme.spacingS : 0
                 visible: !root._pillIsPulse
 
-                DankIcon {
+                DIcon {
                     name: globalIsRunning.value ? "pause" : (root.isReady ? "timer" : "play_arrow")
                     size: Theme.iconSizeSmall
                     color: root.pillColor
@@ -430,7 +431,7 @@ PluginComponent {
     popoutContent: Component {
         PopoutComponent {
             id: popout
-            headerText: I18n.tr("Timer")
+            headerText: I18n.trFor("timer", "Timer")
             showCloseButton: true
 
             Column {
@@ -438,7 +439,7 @@ PluginComponent {
                 spacing: Theme.spacingM
 
                 StyledText {
-                    text: I18n.tr("Select a preset or enter minutes")
+                    text: I18n.trFor("timer", "Select a preset or enter minutes")
                     font.pixelSize: Theme.fontSizeMedium
                     color: Theme.surfaceVariantText
                     horizontalAlignment: Text.AlignHCenter
@@ -453,7 +454,7 @@ PluginComponent {
 
                     Repeater {
                         model: root.presets
-                        delegate: DankButton {
+                        delegate: DButton {
                             text: modelData + "m"
                             width: (parent.width - (Theme.spacingS * 3)) / 4
                             backgroundColor: Theme.primary
@@ -472,7 +473,7 @@ PluginComponent {
                     width: parent.width
                     spacing: Theme.spacingS
 
-                    DankTextField {
+                    DTextField {
                         id: customInput
                         placeholderText: "Minutes..."
                         width: parent.width - setBtn.width - parent.spacing
@@ -484,9 +485,9 @@ PluginComponent {
                         onAccepted: setBtn.clicked()
                     }
 
-                    DankButton {
+                    DButton {
                         id: setBtn
-                        text: I18n.tr("Set")
+                        text: I18n.trFor("timer", "Set")
                         iconName: "play_arrow"
                         onClicked: {
                             const mins = parseInt(customInput.text);
@@ -508,7 +509,7 @@ PluginComponent {
                     Separator { opacity: 0.1 }
 
                     StyledText {
-                        text: I18n.tr("When Done")
+                        text: I18n.trFor("timer", "When Done")
                         font.pixelSize: Theme.fontSizeSmall
                         font.weight: Font.Bold
                         color: Theme.primary
@@ -520,27 +521,27 @@ PluginComponent {
 
                         Repeater {
                             model: [{
-                                "label": I18n.tr("None"),
+                                "label": I18n.trFor("timer", "None"),
                                 "value": "none",
                                 "icon": "block"
                             }, {
-                                "label": I18n.tr("Lock"),
+                                "label": I18n.trFor("timer", "Lock"),
                                 "value": "lock",
                                 "icon": "lock"
                             }, {
-                                "label": I18n.tr("Sleep"),
+                                "label": I18n.trFor("timer", "Sleep"),
                                 "value": "suspend",
                                 "icon": "snooze"
                             }, {
-                                "label": I18n.tr("Hibernate"),
+                                "label": I18n.trFor("timer", "Hibernate"),
                                 "value": "hibernate",
                                 "icon": "nights_stay"
                             }, {
-                                "label": I18n.tr("Shutdown"),
+                                "label": I18n.trFor("timer", "Shutdown"),
                                 "value": "poweroff",
                                 "icon": "power_settings_new"
                             }, {
-                                "label": I18n.tr("Custom"),
+                                "label": I18n.trFor("timer", "Custom"),
                                 "value": "custom",
                                 "icon": "code"
                             }]
@@ -555,7 +556,7 @@ PluginComponent {
                                     anchors.centerIn: parent
                                     spacing: Theme.spacingXXS
 
-                                    DankIcon {
+                                    DIcon {
                                         name: modelData.icon
                                         size: Theme.iconSizeSmall
                                         color: root.systemActionOnTimeout === modelData.value ? Theme.onPrimary : Theme.surfaceText
@@ -587,12 +588,12 @@ PluginComponent {
 
                     }
 
-                    DankTextField {
+                    DTextField {
                         id: cmdInput
 
                         width: parent.width - 24
                         anchors.horizontalCenter: parent.horizontalCenter
-                        placeholderText: I18n.tr("Custom shell command...")
+                        placeholderText: I18n.trFor("timer", "Custom shell command...")
                         showClearButton: true
                         text: root.customCommandOnTimeout
                         visible: root.systemActionOnTimeout === "custom"
@@ -610,7 +611,7 @@ PluginComponent {
 
                     HintItem {
                         icon: "mouse"
-                        text: I18n.tr("Left-click to Pause/Resume, Right-click to Reset (Quick Start when ready).")
+                        text: I18n.trFor("timer", "Left-click to Pause/Resume, Right-click to Reset (Quick Start when ready).")
                     }
                 }
             }

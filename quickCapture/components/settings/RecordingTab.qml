@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Common
 import "../../shared"
+import "../core" as Core
 import "../core/Defaults.js" as Defaults
 
 SettingsGroup {
@@ -35,8 +36,8 @@ SettingsGroup {
         StringSettingPlus {
             settingKey: "recordingDirectory"
             label: I18n.trFor("quickCapture", "Recording Folder")
-            placeholder: Defaults.values.recordingDirectory
-            defaultValue: Defaults.values.recordingDirectory
+            placeholder: Core.CapturePaths.defaultRecordingDirectory
+            defaultValue: Core.CapturePaths.defaultRecordingDirectory
             isDirectory: true
         }
 
@@ -316,7 +317,36 @@ SettingsGroup {
             Separator {}
         }
 
+        ButtonGroupSettingPlus {
+            id: recordingStatusLocation
+            settingKey: "recordingStatusLocation"
+            label: I18n.trFor("quickCapture", "Recording Status Location")
+            description: I18n.trFor("quickCapture", "Choose where the recording status and controls appear: Auto (DankBar if present, otherwise Floating Pill), DankBar, Floating Pill, or Both.")
+            options: [
+                {
+                    label: I18n.trFor("quickCapture", "Auto"),
+                    value: "auto"
+                },
+                {
+                    label: I18n.trFor("quickCapture", "DankBar"),
+                    value: "bar"
+                },
+                {
+                    label: I18n.trFor("quickCapture", "Floating Pill"),
+                    value: "floating"
+                },
+                {
+                    label: I18n.trFor("quickCapture", "Both"),
+                    value: "both"
+                }
+            ]
+            defaultValue: Defaults.values.recordingStatusLocation
+        }
+
+        Separator {}
+
         ToggleSettingPlus {
+            visible: recordingStatusLocation.value !== "bar"
             settingKey: "showPillBorder"
             label: I18n.trFor("quickCapture", "Show Pill Border")
             defaultValue: Defaults.values.showPillBorder

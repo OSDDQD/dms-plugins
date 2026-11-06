@@ -8,7 +8,7 @@ import qs.Common
 import qs.Modals.Common
 import qs.Modules.Plugins
 import qs.Services
-import qs.Widgets
+import qs.DCommon.Widgets
 import "./shared"
 import "emoji-data.js" as EmojiData
 
@@ -325,7 +325,7 @@ PluginComponent {
         }
     }
 
-    DankModal {
+    DModal {
         id: pickerModal
         layerNamespace: "dms:plugins:emojiPicker"
         modalWidth: root.pickerWidth
@@ -497,6 +497,13 @@ PluginComponent {
                 });
             }
 
+            function cycleCategory(direction) {
+                const currentIndex = root.categoryOrder.indexOf(root.selectedCategory);
+                const categoryCount = root.categoryOrder.length;
+                const nextIndex = (currentIndex + direction + categoryCount) % categoryCount;
+                pickerView.selectCategory(root.categoryOrder[nextIndex]);
+            }
+
             function categoryForShortcut(event) {
                 if (!(event.modifiers & Qt.ControlModifier))
                     return "";
@@ -515,7 +522,17 @@ PluginComponent {
             }
 
             function handleCommonShortcuts(event) {
-                if (!(event.modifiers & Qt.ControlModifier) || (event.modifiers & (Qt.ShiftModifier | Qt.AltModifier | Qt.MetaModifier)))
+                if (!(event.modifiers & Qt.ControlModifier) || (event.modifiers & (Qt.AltModifier | Qt.MetaModifier)))
+                    return false;
+
+                if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
+                    const reverse = event.key === Qt.Key_Backtab || (event.modifiers & Qt.ShiftModifier);
+                    pickerView.cycleCategory(reverse ? -1 : 1);
+                    event.accepted = true;
+                    return true;
+                }
+
+                if (event.modifiers & Qt.ShiftModifier)
                     return false;
 
                 if (event.key === Qt.Key_F) {
@@ -578,7 +595,7 @@ PluginComponent {
                 }
             }
 
-            DankDropdown {
+            DDropdown {
                 id: skinToneDropdown
                 showTrigger: false
                 popupAnchorItem: skinToneBtn
@@ -607,7 +624,7 @@ PluginComponent {
                         Layout.fillWidth: true
                         placeholderText: root.selectedCategory === "recent" || !root.categoryNames[root.selectedCategory]
                             ? I18n.trFor("emojiPicker", "Search emoji")
-                            : I18n.trFor("emojiPicker", "Search in %1").arg(I18n.tr(root.categoryNames[root.selectedCategory]))
+                            : I18n.trFor("emojiPicker", "Search in %1").arg(I18n.trFor("emojiPicker", root.categoryNames[root.selectedCategory]))
                         text: root.query
                         onTextChanged: {
                             root.query = text;
@@ -636,14 +653,20 @@ PluginComponent {
 
                     Rectangle {
                         id: skinToneBtn
-                        Layout.preferredWidth: searchField.height
-                        Layout.preferredHeight: searchField.height
+                        Layout.preferredWidth: Math.max(searchField.implicitHeight, searchField.height)
+                        Layout.preferredHeight: Math.max(searchField.implicitHeight, searchField.height)
                         radius: height / 2
                         color: skinToneBtnMouse.containsMouse || skinToneDropdown.menuVisible
-                            ? Theme.surfaceContainerHigh
-                            : Theme.chipSurface
+                            ? (typeof Theme.foregroundColor === "function" ? Theme.foregroundColor(Theme.surfaceContainerHigh) : Theme.surfaceContainerHigh)
+                            : (typeof Theme.foregroundColor === "function" ? Theme.foregroundColor(Theme.chipSurface) : Theme.chipSurface)
                         border.width: 1
                         border.color: skinToneDropdown.menuVisible ? Theme.primary : Theme.outlineVariant
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: Theme.shortDuration ?? 150
+                            }
+                        }
 
                         StyledText {
                             anchors.centerIn: parent
@@ -684,12 +707,12 @@ PluginComponent {
                             id: categoryRepeater
                             model: root.categoryOrder
 
-                            DankActionButton {
+                            DActionButton {
                                 required property string modelData
                                 required property int index
                                 iconName: root.categoryIcons[modelData] || "category"
                                 iconSize: 22
-                                tooltipText: I18n.tr(root.categoryNames[modelData] || "")
+                                tooltipText: I18n.trFor("emojiPicker", root.categoryNames[modelData] || "")
                                 buttonSize: (categoryRow.width - (root.categoryOrder.length - 1) * categoryRow.spacing) / root.categoryOrder.length
                                 backgroundColor: root.selectedCategory === modelData ? Theme.primary : Theme.surfaceContainerHigh
                                 iconColor: root.selectedCategory === modelData ? Theme.onPrimary : Theme.surfaceText
@@ -715,7 +738,7 @@ PluginComponent {
                     spacing: Theme.spacingS
 
                     StyledText {
-                        text: root.visibleEntries.length > 0 ? (root.query ? I18n.trFor("emojiPicker", "Search results") : (I18n.tr(root.categoryNames[root.selectedCategory] || ""))) : I18n.trFor("emojiPicker", "No emoji found")
+                        text: root.visibleEntries.length > 0 ? (root.query ? I18n.trFor("emojiPicker", "Search results") : (I18n.trFor("emojiPicker", root.categoryNames[root.selectedCategory] || ""))) : I18n.trFor("emojiPicker", "No emoji found")
                         color: Theme.surfaceVariantText
                         font.pixelSize: Theme.fontSizeSmall
                         verticalAlignment: Text.AlignVCenter
@@ -732,7 +755,7 @@ PluginComponent {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    DankButton {
+                    DButton {
                         visible: !root.query && root.selectedCategory === "recent" && root.recentEmojis.length > 0
                         text: I18n.trFor("emojiPicker", "Clear All")
                         iconName: "delete_sweep"
@@ -743,7 +766,7 @@ PluginComponent {
                     }
                 }
 
-                DankGridView {
+                DGridView {
                     id: emojiGrid
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -889,7 +912,7 @@ PluginComponent {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: Theme.spacingXS
 
-                            DankKeycap {
+                            DKeycap {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: parent.modelData.keys
                             }

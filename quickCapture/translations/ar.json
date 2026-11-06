@@ -161,8 +161,17 @@
   "Capture Actions": {
     "Capture Actions": "إجراءات الالتقاط"
   },
+  "Capture Fullscreen": {
+    "Capture Fullscreen": ""
+  },
   "Capture Options": {
     "Capture Options": "خيارات الالتقاط"
+  },
+  "Capture Region": {
+    "Capture Region": ""
+  },
+  "Capture Window": {
+    "Capture Window": ""
   },
   "Capturing...": {
     "Capturing...": "جاري الالتقاط..."
@@ -178,6 +187,9 @@
   },
   "Choose the editor shape for portrait or landscape screens.": {
     "Choose the editor shape for portrait or landscape screens.": "اختر شكل المحرر للشاشات العمودية أو الأفقية."
+  },
+  "Choose where the recording status and controls appear: Auto (DankBar if present, otherwise Floating Pill), DankBar, Floating Pill, or Both.": {
+    "Choose where the recording status and controls appear: Auto (DankBar if present, otherwise Floating Pill), DankBar, Floating Pill, or Both.": "اختر مكان ظهور حالة التسجيل وعناصر التحكم: تلقائي (DankBar إذا كان موجودًا، وإلا القرص العائم)، DankBar، القرص العائم، أو كلاهما."
   },
   "Choose whether the editor opens as a modal overlay or a movable floating window.": {
     "Choose whether the editor opens as a modal overlay or a movable floating window.": "اختر ما إذا كان المحرر يفتح كطبقة تراكب مشروطة أو نافذة عائمة قابلة للتحريك."
@@ -261,13 +273,16 @@
     "Could not crop image": "تعذر اقتصاص الصورة"
   },
   "Credits": {
-    "Credits": ""
+    "Credits": "الرصيد"
   },
   "Crop / Resize": {
     "Crop / Resize": "قص / تغيير الحجم"
   },
   "Custom": {
     "Custom": "خيار مخصص"
+  },
+  "DankBar": {
+    "DankBar": "DankBar"
   },
   "Dark": {
     "Dark": "داكن"
@@ -392,8 +407,11 @@
   "Floating": {
     "Floating": "عائم"
   },
+  "Floating Pill": {
+    "Floating Pill": "القرص العائم"
+  },
   "Floating window and continuous editing workflow.": {
-    "Floating window and continuous editing workflow.": ""
+    "Floating window and continuous editing workflow.": "نافذة عائمة وسير عمل تحرير مستمر."
   },
   "Focused Screen": {
     "Focused Screen": "الشاشة المركزة"
@@ -413,14 +431,14 @@
   "Format tokens: {user} (Username), \\n (New Line), %Y (Year), %y (2-digit year), %m (Month), %d (Day), %H (Hour), %M (Minute), %S (Second)": {
     "Format tokens: {user} (Username), \\n (New Line), %Y (Year), %y (2-digit year), %m (Month), %d (Day), %H (Hour), %M (Minute), %S (Second)": "رموز التنسيق: {user} (اسم المستخدم)، \\n (سطر جديد)، %Y (السنة)، %y (السنة برقمين)، %m (الشهر)، %d (اليوم)، %H (الساعة)، %M (الدقيقة)، %S (الثانية)"
   },
-  "Format: %1 (%2 FPS)": {
-    "Format: %1 (%2 FPS)": "التنسيق: %1 (%2 إطار في الثانية)"
-  },
   "Framerate": {
     "Framerate": "معدل الإطارات"
   },
   "Free": {
     "Free": "حر"
+  },
+  "From Clipboard": {
+    "From Clipboard": ""
   },
   "Fullscreen": {
     "Fullscreen": "ملء الشاشة"
@@ -451,12 +469,6 @@
   },
   "Hide Annotations": {
     "Hide Annotations": "إخفاء التعليقات التوضيحية"
-  },
-  "Hide Control Center": {
-    "Hide Control Center": "إخفاء مركز التحكم"
-  },
-  "Hide Control Center by Default": {
-    "Hide Control Center by Default": "إخفاء مركز التحكم افتراضياً"
   },
   "Hide Control Center on Capture": {
     "Hide Control Center on Capture": "إخفاء مركز التحكم عند الالتقاط"
@@ -508,9 +520,6 @@
   },
   "Initial Width": {
     "Initial Width": "العرض الأولي"
-  },
-  "Initial state for the Control Center toggle.": {
-    "Initial state for the Control Center toggle.": "الحالة الأولية لتبديل مركز التحكم."
   },
   "Inline": {
     "Inline": "مضمن"
@@ -602,6 +611,9 @@
   "Modal": {
     "Modal": "مشروط (Modal)"
   },
+  "More Options": {
+    "More Options": ""
+  },
   "More Tools": {
     "More Tools": "المزيد من الأدوات"
   },
@@ -616,6 +628,9 @@
   },
   "No QR code detected": {
     "No QR code detected": "لم يتم اكتشاف رمز QR"
+  },
+  "No Tesseract language packs found. Ensure tesseract is installed and has language data packages.": {
+    "No Tesseract language packs found. Ensure tesseract is installed and has language data packages.": ""
   },
   "No output available": {
     "No output available": "لا يوجد مخرج متاح"
@@ -662,6 +677,9 @@
   "Off (Hidden)": {
     "Off (Hidden)": "إيقاف (مخفي)"
   },
+  "On": {
+    "On": "تشغيل"
+  },
   "Opacity": {
     "Opacity": "الشفافية"
   },
@@ -671,11 +689,11 @@
   "Open %1 menu (Popout)": {
     "Open %1 menu (Popout)": "فتح قائمة %1 (نافذة منبثقة)"
   },
+  "Open Captures Folder": {
+    "Open Captures Folder": ""
+  },
   "Open Image": {
     "Open Image": "فتح الصورة"
-  },
-  "Open folder": {
-    "Open folder": "فتح المجلد"
   },
   "Outline Variant": {
     "Outline Variant": "تباين المخطط التفصيلي"
@@ -696,7 +714,7 @@
     "Palette Preset": "إعدادات اللوحة المسبقة"
   },
   "Paste from Clipboard": {
-    "Paste from Clipboard": ""
+    "Paste from Clipboard": "لصق من الحافظة"
   },
   "Pause": {
     "Pause": "إيقاف مؤقت"
@@ -783,7 +801,7 @@
     "Radial Menu": "قائمة شعاعية"
   },
   "Radial menu and tool interaction patterns.": {
-    "Radial menu and tool interaction patterns.": ""
+    "Radial menu and tool interaction patterns.": "قائمة دائرية وأنماط تفاعل الأدوات."
   },
   "Ratio": {
     "Ratio": "نسبة"
@@ -794,8 +812,20 @@
   "Recent Edits": {
     "Recent Edits": "التعديلات الأخيرة"
   },
+  "Recent History": {
+    "Recent History": ""
+  },
+  "Record Fullscreen": {
+    "Record Fullscreen": ""
+  },
   "Record Microphone": {
     "Record Microphone": "تسجيل الميكروفون"
+  },
+  "Record Region": {
+    "Record Region": ""
+  },
+  "Record Screen": {
+    "Record Screen": ""
   },
   "Record System Audio": {
     "Record System Audio": "تسجيل صوت النظام"
@@ -811,6 +841,9 @@
   },
   "Recording Paused": {
     "Recording Paused": "تم إيقاف التسجيل مؤقتاً"
+  },
+  "Recording Status Location": {
+    "Recording Status Location": "موقع حالة التسجيل"
   },
   "Recording ended with error code %1.": {
     "Recording ended with error code %1.": "انتهى التسجيل برمز خطأ %1."
@@ -947,20 +980,20 @@
   "Select Color Slots %1": {
     "Select Color Slots %1": "حدد فتحات الألوان %1"
   },
+  "Select Image File": {
+    "Select Image File": ""
+  },
   "Select Image to Annotate": {
     "Select Image to Annotate": "تحديد صورة للتعليق عليها"
   },
-  "Select screen recording backend. Auto attempts GPU first and falls back to CPU (%1).": {
-    "Select screen recording backend. Auto attempts GPU first and falls back to CPU (%1).": "حدد خلفية تسجيل الشاشة. يحاول الوضع التلقائي استخدام وحدة معالجة الرسومات (GPU) أولاً، ثم يعود إلى وحدة المعالجة المركزية (CPU) (%1)."
+  "Select one or more installed Tesseract language packs for OCR text recognition.": {
+    "Select one or more installed Tesseract language packs for OCR text recognition.": ""
   },
   "Select screen recording backend. Auto attempts GPU first and falls back to CPU (%1). Note: %1 does not support pausing.": {
     "Select screen recording backend. Auto attempts GPU first and falls back to CPU (%1). Note: %1 does not support pausing.": "حدد نظام تسجيل الشاشة. يحاول الوضع التلقائي استخدام وحدة معالجة الرسومات أولاً ثم ينتقل إلى وحدة المعالجة المركزية (%1). ملاحظة: %1 لا يدعم الإيقاف المؤقت."
   },
   "Selected Tool / Action": {
     "Selected Tool / Action": "الأداة / الإجراء المحدد"
-  },
-  "Settings": {
-    "Settings": "الإعدادات"
   },
   "Shadow Strength": {
     "Shadow Strength": "قوة الظل الافتراضية"
@@ -973,9 +1006,6 @@
   },
   "Show Annotations": {
     "Show Annotations": "إظهار التعليقات التوضيحية"
-  },
-  "Show Control Center": {
-    "Show Control Center": "إظهار مركز التحكم"
   },
   "Show Keyboard Shortcut Hints": {
     "Show Keyboard Shortcut Hints": "إظهار تلميحات اختصارات لوحة المفاتيح"
@@ -1049,6 +1079,9 @@
   "Stop & Save": {
     "Stop & Save": "إيقاف وحفظ"
   },
+  "Stop Recording": {
+    "Stop Recording": ""
+  },
   "Surface Container Highest": {
     "Surface Container Highest": "حاوية السطح الأعلى"
   },
@@ -1107,7 +1140,7 @@
     "Toolbar Position": "موقع شريط الأدوات"
   },
   "Toolbar design and layout inspiration.": {
-    "Toolbar design and layout inspiration.": ""
+    "Toolbar design and layout inspiration.": "تصميم شريط الأدوات وإلهام التخطيط."
   },
   "Tools": {
     "Tools": "الأدوات"

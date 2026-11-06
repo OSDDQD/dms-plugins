@@ -3,7 +3,7 @@ import QtMultimedia
 import Quickshell
 import Quickshell.Io
 import qs.Common
-import qs.Widgets
+import qs.DCommon.Widgets
 import qs.Modules.Plugins
 import qs.Services
 
@@ -127,18 +127,18 @@ PluginComponent {
         if (master && master.isPaused) return "pause";
         return "self_improvement";
     }
-    ccWidgetPrimaryText: I18n.tr("Take a Break")
+    ccWidgetPrimaryText: I18n.trFor("takeABreak", "Take a Break")
     ccWidgetSecondaryText: {
         const master = pluginRoot.masterInstance;
         if (!master) return "";
-        if (master.isPaused) return I18n.tr("Paused");
+        if (master.isPaused) return I18n.trFor("takeABreak", "Paused");
         
         let total = master.isBreakActive ? master.breakTimeRemaining : master.timeToNextBreak;
         let m = Math.floor(total / 60);
         let s = total % 60;
         let timeStr = `${m}:${s < 10 ? '0' : ''}${s}`;
         
-        return master.isBreakActive ? I18n.tr("Break: %1").arg(timeStr) : timeStr;
+        return master.isBreakActive ? I18n.trFor("takeABreak", "Break: %1").arg(timeStr) : timeStr;
     }
     ccWidgetIsActive: masterInstance ? !masterInstance.isPaused : true
     ccDetailHeight: 310
@@ -222,7 +222,7 @@ PluginComponent {
                                 anchors.verticalCenter: parent.verticalCenter
                                 spacing: Theme.spacingXS
 
-                                DankIcon {
+                                DIcon {
                                     name: {
                                         if (detailRoot.isPaused) return "pause_circle";
                                         if (detailRoot.isBreak) return "self_improvement";
@@ -237,18 +237,18 @@ PluginComponent {
                                 StyledText {
                                     text: {
                                         if (!detailRoot.master) return "";
-                                        if (detailRoot.isPaused) return I18n.tr("Paused");
+                                        if (detailRoot.isPaused) return I18n.trFor("takeABreak", "Paused");
                                         if (detailRoot.master.isBreakActive) {
                                             return detailRoot.master.nextBreakType === 1
-                                                ? I18n.tr("Short Break Active")
-                                                : I18n.tr("Long Break Active");
+                                                ? I18n.trFor("takeABreak", "Short Break Active")
+                                                : I18n.trFor("takeABreak", "Long Break Active");
                                         }
                                         if (detailRoot.master.isPreWarning) {
-                                            return I18n.tr("Break Incoming");
+                                            return I18n.trFor("takeABreak", "Break Incoming");
                                         }
                                         return detailRoot.master.nextBreakType === 1
-                                            ? I18n.tr("Next: Short Break")
-                                            : I18n.tr("Next: Long Break");
+                                            ? I18n.trFor("takeABreak", "Next: Short Break")
+                                            : I18n.trFor("takeABreak", "Next: Long Break");
                                     }
                                     font.pixelSize: Theme.fontSizeSmall
                                     font.weight: Font.Medium
@@ -367,11 +367,11 @@ PluginComponent {
                     width: parent.width
                     spacing: Theme.spacingM
 
-                    DankButton {
+                    DButton {
                         width: (parent.width - parent.spacing) / 2
                         buttonHeight: 38
                         iconName: detailRoot.isBreak ? "snooze" : (detailRoot.isPaused ? "play_arrow" : "pause")
-                        text: detailRoot.isBreak ? I18n.tr("Snooze 5m") : (detailRoot.isPaused ? I18n.tr("Resume") : I18n.tr("Pause"))
+                        text: detailRoot.isBreak ? I18n.trFor("takeABreak", "Snooze 5m") : (detailRoot.isPaused ? I18n.trFor("takeABreak", "Resume") : I18n.trFor("takeABreak", "Pause"))
                         backgroundColor: (!detailRoot.isBreak && detailRoot.isPaused) ? Theme.primary : Theme.surfaceContainerHigh
                         textColor: (!detailRoot.isBreak && detailRoot.isPaused) ? Theme.onPrimary : Theme.surfaceText
                         onClicked: {
@@ -383,11 +383,11 @@ PluginComponent {
                         }
                     }
 
-                    DankButton {
+                    DButton {
                         width: (parent.width - parent.spacing) / 2
                         buttonHeight: 38
                         iconName: detailRoot.isBreak ? "skip_next" : "self_improvement"
-                        text: detailRoot.isBreak ? I18n.tr("Skip") : I18n.tr("Take Break")
+                        text: detailRoot.isBreak ? I18n.trFor("takeABreak", "Skip") : I18n.trFor("takeABreak", "Take Break")
                         backgroundColor: detailRoot.isBreak ? Theme.primary : Theme.surfaceContainerHigh
                         textColor: detailRoot.isBreak ? Theme.onPrimary : Theme.surfaceText
                         enabled: detailRoot.isBreak || !detailRoot.isPaused
@@ -441,7 +441,7 @@ PluginComponent {
 
                                 StyledText {
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    text: I18n.tr("Adherence")
+                                    text: I18n.trFor("takeABreak", "Adherence")
                                     font.pixelSize: Theme.fontSizeSmall
                                     color: Theme.surfaceVariantText
                                 }
@@ -479,7 +479,7 @@ PluginComponent {
 
                                 StyledText {
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    text: I18n.tr("Today Done")
+                                    text: I18n.trFor("takeABreak", "Today Done")
                                     font.pixelSize: Theme.fontSizeSmall
                                     color: Theme.surfaceVariantText
                                 }
@@ -517,7 +517,7 @@ PluginComponent {
 
                                 StyledText {
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    text: I18n.tr("This Week")
+                                    text: I18n.trFor("takeABreak", "This Week")
                                     font.pixelSize: Theme.fontSizeSmall
                                     color: Theme.surfaceVariantText
                                 }
@@ -537,11 +537,11 @@ PluginComponent {
                     width: parent.width
                     spacing: Theme.spacingM
 
-                    DankButton {
+                    DButton {
                         width: (parent.width - parent.spacing * 2) / 3
                         buttonHeight: 32
                         iconName: "more_time"
-                        text: I18n.tr("+5m")
+                        text: I18n.trFor("takeABreak", "+5m")
                         backgroundColor: Theme.surfaceContainerHigh
                         textColor: Theme.surfaceText
                         enabled: !detailRoot.isBreak && !detailRoot.isPaused
@@ -551,11 +551,11 @@ PluginComponent {
                         }
                     }
 
-                    DankButton {
+                    DButton {
                         width: (parent.width - parent.spacing * 2) / 3
                         buttonHeight: 32
                         iconName: "refresh"
-                        text: I18n.tr("Reset")
+                        text: I18n.trFor("takeABreak", "Reset")
                         backgroundColor: Theme.surfaceContainerHigh
                         textColor: Theme.surfaceText
                         onClicked: {
@@ -564,11 +564,11 @@ PluginComponent {
                         }
                     }
 
-                    DankButton {
+                    DButton {
                         width: (parent.width - parent.spacing * 2) / 3
                         buttonHeight: 32
                         iconName: "settings"
-                        text: I18n.tr("Settings")
+                        text: I18n.trFor("takeABreak", "Settings")
                         backgroundColor: Theme.surfaceContainerHigh
                         textColor: Theme.surfaceText
                         onClicked: PopoutService.openSettingsWithTab("plugins")
@@ -896,7 +896,7 @@ PluginComponent {
                 width: parent.width
                 spacing: Theme.spacingM
 
-                DankIcon {
+                DIcon {
                     name: "self_improvement"
                     size: 32
                     color: Theme.primary
@@ -908,7 +908,7 @@ PluginComponent {
                     spacing: 4
 
                     StyledText {
-                        text: pluginRoot.isBreakActive ? I18n.tr("Currently on a break") : (pluginRoot.nextBreakType === 1 ? I18n.tr("Next: Short Break") : I18n.tr("Next: Long Break"))
+                        text: pluginRoot.isBreakActive ? I18n.trFor("takeABreak", "Currently on a break") : (pluginRoot.nextBreakType === 1 ? I18n.trFor("takeABreak", "Next: Short Break") : I18n.trFor("takeABreak", "Next: Long Break"))
                         font.pixelSize: Theme.fontSizeSmall
                         color: Theme.surfaceVariantText
                     }
@@ -938,8 +938,8 @@ PluginComponent {
                 width: parent.width
                 spacing: Theme.spacingS
 
-                DankButton {
-                    text: pluginRoot.isPaused ? I18n.tr("Resume") : I18n.tr("Pause")
+                DButton {
+                    text: pluginRoot.isPaused ? I18n.trFor("takeABreak", "Resume") : I18n.trFor("takeABreak", "Pause")
                     iconName: pluginRoot.isPaused ? "play_arrow" : "pause"
                     backgroundColor: Theme.surfaceContainerHigh
                     textColor: Theme.surfaceText
@@ -948,8 +948,8 @@ PluginComponent {
                     onClicked: pluginRoot.togglePaused()
                 }
 
-                DankButton {
-                    text: I18n.tr("Reset")
+                DButton {
+                    text: I18n.trFor("takeABreak", "Reset")
                     iconName: "refresh"
                     backgroundColor: Theme.surfaceContainerHigh
                     textColor: Theme.surfaceText

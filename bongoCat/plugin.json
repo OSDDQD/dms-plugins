@@ -2,15 +2,20 @@
   "id": "bongoCat",
   "name": "Bongo Cat",
   "description": "A reactive Bongo Cat that taps along with your typing",
-  "version": "2.3.2",
+  "version": "2.5.0",
+  "requires_dms": ">=2.0.0",
   "license": "MIT",
   "author": "Loc Huynh",
   "icon": "pets",
-  "type": "widget",
+  "type": "composite",
   "capabilities": [
-    "dankbar-widget"
+    "dankbar-widget",
+    "desktop-widget"
   ],
-  "component": "./BongoWidget.qml",
+  "components": {
+    "widget": "./BongoWidget.qml",
+    "desktop": "./BongoDesktopWidget.qml"
+  },
   "settings": "./BongoSettings.qml",
   "permissions": [
     "settings_read",

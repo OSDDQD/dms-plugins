@@ -4,7 +4,6 @@ import Quickshell.Wayland
 import qs.Common
 import qs.Widgets
 import "./shared"
-import "./shared/keycapColors.js" as KeycapColors
 
 PanelWindow {
     id: overlayWindow
@@ -15,29 +14,28 @@ PanelWindow {
     readonly property bool isMouseClick: daemon ? (daemon.displayText === "LMB Click" || daemon.displayText === "RMB Click" || daemon.displayText === "MMB Click") : false
     readonly property bool isOverlayVisible: daemon && (daemon.displayText !== "" || (daemon.showModifierStatus && (daemon.ctrlActive || daemon.altActive || daemon.shiftActive || daemon.superActive)))
 
-    // Dynamic positioning based on settings (e.g. "bottom_center", "top_left", etc.)
-    anchors.bottom: daemon ? daemon.position.includes("bottom") : false
-    anchors.top: daemon ? daemon.position.includes("top") : false
-    anchors.left: isCentered || (daemon ? daemon.position.includes("left") : false)
-    anchors.right: isCentered || (daemon ? daemon.position.includes("right") : false)
+    // Fullscreen transparent overlay surface to prevent any window resize jitter
+    anchors.top: true
+    anchors.bottom: true
+    anchors.left: true
+    anchors.right: true
 
     // Wayland specific window properties
+    WlrLayershell.namespace: "dms:screenkey-overlay"
     WlrLayershell.layer: WlrLayershell.Overlay
     WlrLayershell.keyboardFocus: WlrLayershell.None // Absolutely critical: do not steal focus
     WlrLayershell.exclusiveZone: -1
     exclusionMode: ExclusionMode.Ignore
 
-    mask: (daemon && daemon.clickThrough === false) ? null : emptyMask
+    mask: (daemon && daemon.clickThrough === false) ? interactiveMask : emptyMask
 
     Region {
         id: emptyMask
     }
 
-    WlrLayershell.margins {
-        left: daemon ? daemon.marginSize : 24
-        right: daemon ? daemon.marginSize : 24
-        top: daemon ? daemon.marginSize : 24
-        bottom: daemon ? daemon.marginSize : 24
+    Region {
+        id: interactiveMask
+        item: cardContainer
     }
 
     // Dummy text to calculate a unified height based on current font size
@@ -82,9 +80,6 @@ PanelWindow {
         return Theme.roleColor(daemon.bgColor);
     }
 
-    // Match window size to container size
-    implicitWidth: isCentered ? (screen ? screen.width : 1920) : cardContainer.width
-    implicitHeight: cardContainer.height
     color: "transparent"
 
     StyledRect {
@@ -94,62 +89,120 @@ PanelWindow {
         width: contentColumn.implicitWidth + Theme.spacingXL * 2
         height: contentColumn.implicitHeight + Theme.spacingL * 2
         
-        anchors.top: (daemon && daemon.position.includes("top")) ? parent.top : undefined
-        anchors.bottom: (daemon && daemon.position.includes("bottom")) ? parent.bottom : undefined
-        anchors.left: (daemon && daemon.position.includes("left")) ? parent.left : undefined
-        anchors.right: (daemon && daemon.position.includes("right")) ? parent.right : undefined
-        anchors.horizontalCenter: isCentered ? parent.horizontalCenter : undefined
+        readonly property real mSize: daemon ? daemon.marginSize : 24
+        readonly property string pos: daemon ? daemon.position : "bottom_center"
+        readonly property bool isTop: pos.startsWith("top")
+        readonly property bool isLeft: pos.endsWith("left")
+        readonly property bool isRight: pos.endsWith("right")
+        readonly property bool isCentered: !isLeft && !isRight
 
-        // Smooth scaling when content changes
-        Behavior on width { NumberAnimation { duration: 100 } }
-        Behavior on height { NumberAnimation { duration: 100 } }
+        x: {
+            if (isLeft) return mSize;
+            if (isRight) return parent.width - width - mSize;
+            return (parent.width - width) / 2;
+        }
+
+        y: {
+            if (isTop) return mSize;
+            return parent.height - height - mSize;
+        }
 
         radius: Theme.cornerRadius
         color: overlayWindow.resolvedBgColor
         border.color: Theme.withAlpha(Theme.outline, 0.15)
         border.width: 1
 
-        // Display with dynamic animations based on settings
-        opacity: overlayWindow.isOverlayVisible ? (daemon ? daemon.overlayOpacity / 100.0 : 0.9) : 0.0
-        scale: overlayWindow.isOverlayVisible ? 1.0 : (daemon && daemon.animationType === "zoom" ? 0.9 : 1.0)
+        state: (daemon && daemon.isExiting) ? "hidden" : (overlayWindow.isOverlayVisible ? "visible" : "hidden")
+        states: [
+            State {
+                name: "hidden"
+                PropertyChanges {
+                    target: cardContainer
+                    opacity: 0.0
+                    scale: (daemon && daemon.exitAnimation === "zoom") ? 0.9 : 1.0
+                }
+            },
+            State {
+                name: "visible"
+                PropertyChanges {
+                    target: cardContainer
+                    opacity: daemon ? daemon.overlayOpacity / 100.0 : 0.9
+                    scale: 1.0
+                }
+            }
+        ]
 
-        property real yOffset: {
-            if (!daemon || daemon.animationType !== "slide") return 0;
-            const isVisible = overlayWindow.isOverlayVisible;
-            if (isVisible) return 0;
-            const isTop = daemon.position.includes("top");
-            return isTop ? -20 : 20;
-        }
+        transitions: [
+            // Entry transition (hidden -> visible)
+            Transition {
+                from: "hidden"
+                to: "visible"
 
-        transform: Translate {
-            y: cardContainer.yOffset
-        }
+                ParallelAnimation {
+                    // Opacity
+                    NumberAnimation {
+                        target: cardContainer
+                        property: "opacity"
+                        duration: (daemon && daemon.entryAnimation !== "none") ? M3E.spatialFastMs : 0
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: M3E.curveFastSpatial
+                    }
 
-        Behavior on opacity {
-            enabled: daemon && daemon.animationType !== "none"
-            OpacityAnimator { duration: 150 }
-        }
+                    // Scale (Zoom)
+                    NumberAnimation {
+                        target: cardContainer
+                        property: "scale"
+                        from: (daemon && daemon.entryAnimation === "zoom") ? 0.9 : 1.0
+                        to: 1.0
+                        duration: (daemon && daemon.entryAnimation === "zoom") ? M3E.spatialFastMs : 0
+                        easing.type: Easing.OutBack
+                    }
+                }
+            },
 
-        Behavior on scale {
-            enabled: daemon && daemon.animationType === "zoom"
-            NumberAnimation { duration: 150; easing.type: Easing.OutBack }
-        }
+            // Exit transition (visible -> hidden)
+            Transition {
+                from: "visible"
+                to: "hidden"
 
-        Behavior on yOffset {
-            enabled: daemon && daemon.animationType === "slide"
-            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-        }
+                ParallelAnimation {
+                    // Opacity
+                    NumberAnimation {
+                        target: cardContainer
+                        property: "opacity"
+                        duration: (daemon && daemon.exitAnimation !== "none") ? M3E.effectsMs : 0
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: M3E.curveEffects
+                    }
+
+                    // Scale (Zoom)
+                    NumberAnimation {
+                        target: cardContainer
+                        property: "scale"
+                        duration: (daemon && daemon.exitAnimation === "zoom") ? M3E.effectsMs : 0
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: M3E.curveEffects
+                    }
+                }
+            }
+        ]
 
         Column {
             id: contentColumn
-            anchors.centerIn: parent
+            x: Theme.spacingXL
+            y: Theme.spacingL
             spacing: Theme.spacingS
 
             Repeater {
                 model: daemon ? daemon.historyList : []
                 delegate: Row {
+                    id: historyRow
                     spacing: (daemon && daemon.macSymbols) ? Theme.spacingXS : Theme.spacingS
-                    anchors.horizontalCenter: isCentered ? parent.horizontalCenter : undefined
+                    x: {
+                        if (cardContainer.isRight) return contentColumn.width - width;
+                        if (cardContainer.isLeft) return 0;
+                        return (contentColumn.width - width) / 2;
+                    }
 
                     readonly property string lineText: modelData.text
                     readonly property bool isCombo: modelData.isCombo
@@ -286,8 +339,12 @@ PanelWindow {
             }
 
             // Divider between history and active modifiers
-            Separator {
+            Rectangle {
                 id: modifierDivider
+                height: 1
+                color: Theme.outline
+                opacity: 0.2
+                width: contentColumn.width
                 visible: daemon && daemon.showModifierStatus && (daemon.ctrlActive || daemon.altActive || daemon.shiftActive || daemon.superActive) && daemon.historyList.length > 0
             }
 
@@ -296,7 +353,12 @@ PanelWindow {
                 id: modifierStatusRow
                 visible: daemon && daemon.showModifierStatus && (daemon.ctrlActive || daemon.altActive || daemon.shiftActive || daemon.superActive)
                 spacing: Theme.spacingS
-                anchors.horizontalCenter: isCentered ? parent.horizontalCenter : undefined
+                layoutDirection: cardContainer.isRight ? Qt.RightToLeft : Qt.LeftToRight
+                x: {
+                    if (cardContainer.isRight) return contentColumn.width - width;
+                    if (cardContainer.isLeft) return 0;
+                    return (contentColumn.width - width) / 2;
+                }
 
                 // Ctrl Pill
                 StyledRect {
@@ -313,7 +375,7 @@ PanelWindow {
                         anchors.centerIn: parent
                         font.pixelSize: daemon ? daemon.fontSize - 4 : 20
                         font.bold: true
-                        color: Theme.onPrimary
+                        color: Theme.onPrimaryContainer
                         text: overlayWindow.getOverlayKeyText("Ctrl")
                     }
                 }
@@ -333,7 +395,7 @@ PanelWindow {
                         anchors.centerIn: parent
                         font.pixelSize: daemon ? daemon.fontSize - 4 : 20
                         font.bold: true
-                        color: Theme.onPrimary
+                        color: Theme.onPrimaryContainer
                         text: overlayWindow.getOverlayKeyText("Alt")
                     }
                 }
@@ -353,7 +415,7 @@ PanelWindow {
                         anchors.centerIn: parent
                         font.pixelSize: daemon ? daemon.fontSize - 4 : 20
                         font.bold: true
-                        color: Theme.onPrimary
+                        color: Theme.onPrimaryContainer
                         text: overlayWindow.getOverlayKeyText("Shift")
                     }
                 }
@@ -373,7 +435,7 @@ PanelWindow {
                         anchors.centerIn: parent
                         font.pixelSize: daemon ? daemon.fontSize - 4 : 20
                         font.bold: true
-                        color: Theme.onPrimary
+                        color: Theme.onPrimaryContainer
                         text: overlayWindow.getOverlayKeyText("Super")
                     }
                 }

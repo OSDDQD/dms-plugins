@@ -6,7 +6,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
 import qs.Common
-import qs.Widgets
+import qs.DCommon.Widgets
 import qs.Modules.Plugins
 import qs.Services
 import "./shared"
@@ -151,10 +151,10 @@ PluginComponent {
         DMSService.sendRequest("clipboard.copyFile", { "filePath": root.previewPath }, function(response) {
             if (response.error) {
                 if (typeof ToastService !== "undefined" && ToastService)
-                    ToastService.showError(I18n.tr("Copy Failed"));
+                    ToastService.showError(I18n.trFor("handMirror", "Copy Failed"));
             } else {
                 if (typeof ToastService !== "undefined" && ToastService)
-                    ToastService.showInfo(I18n.tr("Snapshot copied to clipboard."));
+                    ToastService.showInfo(I18n.trFor("handMirror", "Snapshot copied to clipboard."));
                 root.isPreviewing = false;
             }
         });
@@ -169,11 +169,11 @@ PluginComponent {
         Proc.runCommand("save-snap", ["cp", root.previewPath, destPath], function(stdout, exitCode) {
             if (exitCode === 0) {
                 if (typeof ToastService !== "undefined" && ToastService)
-                    ToastService.showInfo(I18n.tr("Snapshot saved"));
+                    ToastService.showInfo(I18n.trFor("handMirror", "Snapshot saved"));
                 root.isPreviewing = false;
             } else {
                 if (typeof ToastService !== "undefined" && ToastService)
-                    ToastService.showError(I18n.tr("Failed to save snapshot."));
+                    ToastService.showError(I18n.trFor("handMirror", "Failed to save snapshot."));
             }
         });
     }
@@ -233,7 +233,7 @@ PluginComponent {
             implicitHeight: Theme.iconSize
             anchors.verticalCenter: parent.verticalCenter
 
-            DankIcon {
+            DIcon {
                 anchors.centerIn: parent
                 name: "photo_camera"
                 size: Theme.iconSizeSmall
@@ -262,7 +262,7 @@ PluginComponent {
             implicitHeight: Theme.iconSizeSmall
             anchors.horizontalCenter: parent.horizontalCenter
 
-            DankIcon {
+            DIcon {
                 anchors.centerIn: parent
                 name: "photo_camera"
                 size: Theme.iconSizeSmall
@@ -461,7 +461,7 @@ PluginComponent {
                         NumberAnimation { duration: 200 }
                     }
 
-                    DankIcon {
+                    DIcon {
                         anchors.centerIn: parent
                         name: "push_pin"
                         size: Theme.iconSizeSmall
@@ -497,7 +497,7 @@ PluginComponent {
                         NumberAnimation { duration: 200 }
                     }
 
-                    DankIcon {
+                    DIcon {
                         anchors.centerIn: parent
                         name: root.cfg_screenFlash ? "flash_on" : "offline_bolt"
                         size: Theme.iconSizeSmall
@@ -532,7 +532,7 @@ PluginComponent {
                         NumberAnimation { duration: 200 }
                     }
 
-                    DankIcon {
+                    DIcon {
                         anchors.centerIn: parent
                         name: "photo_camera"
                         size: Theme.iconSizeSmall
@@ -782,24 +782,24 @@ PluginComponent {
                                 anchors.centerIn: parent
                                 spacing: Theme.spacingM
 
-                                DankActionButton {
+                                DActionButton {
                                     iconName: "close"
                                     iconColor: Theme.error
-                                    tooltipText: I18n.tr("Discard")
+                                    tooltipText: I18n.trFor("handMirror", "Discard")
                                     onClicked: root.discardPreview()
                                 }
 
-                                DankActionButton {
+                                DActionButton {
                                     iconName: "content_copy"
                                     iconColor: root.overlayBtnBorder
-                                    tooltipText: I18n.tr("Copy to Clipboard")
+                                    tooltipText: I18n.trFor("handMirror", "Copy to Clipboard")
                                     onClicked: root.copyPreview()
                                 }
 
-                                DankActionButton {
+                                DActionButton {
                                     iconName: "save"
                                     iconColor: Theme.primary
-                                    tooltipText: I18n.tr("Save Image")
+                                    tooltipText: I18n.trFor("handMirror", "Save Image")
                                     onClicked: root.savePreview()
                                 }
                             }
@@ -842,7 +842,7 @@ PluginComponent {
     // Pinned Standalone Window
     FloatingWindow {
         id: standaloneWindow
-        title: I18n.tr("Hand Mirror")
+        title: I18n.trFor("handMirror", "Hand Mirror")
         implicitWidth: Math.round(360 * (root.cfg_windowScale / 100.0))
         implicitHeight: Math.round(implicitWidth / root.activeRatio)
         color: "transparent"
@@ -888,7 +888,7 @@ PluginComponent {
                     NumberAnimation { duration: 200 }
                 }
 
-                DankIcon {
+                DIcon {
                     anchors.centerIn: parent
                     name: "close"
                     size: Theme.iconSizeSmall
@@ -923,7 +923,7 @@ PluginComponent {
                     NumberAnimation { duration: 200 }
                 }
 
-                DankIcon {
+                DIcon {
                     anchors.centerIn: parent
                     name: "push_pin"
                     size: Theme.iconSizeSmall
@@ -959,7 +959,7 @@ PluginComponent {
                     NumberAnimation { duration: 200 }
                 }
 
-                DankIcon {
+                DIcon {
                     anchors.centerIn: parent
                     name: root.cfg_screenFlash ? "flash_on" : "offline_bolt"
                     size: Theme.iconSizeSmall
@@ -994,7 +994,7 @@ PluginComponent {
                     NumberAnimation { duration: 200 }
                 }
 
-                DankIcon {
+                DIcon {
                     anchors.centerIn: parent
                     name: "photo_camera"
                     size: Theme.iconSizeSmall
